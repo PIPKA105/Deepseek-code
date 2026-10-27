@@ -84,6 +84,29 @@ textarea{width:100%;border:0;outline:0;resize:none;background:none;color:inherit
 .rf.spin svg{animation:spin 1s linear infinite}
 @keyframes spin{to{transform:rotate(360deg)}}
 a.opt{text-decoration:none;color:inherit}
+.svcb{font:13px system-ui,sans-serif;padding:7px 12px;border-radius:999px;background:var(--bubble);transition:transform .15s}
+.svcb:active{transform:scale(.94)}
+.sheet{position:fixed;left:0;right:0;bottom:0;max-width:760px;margin:0 auto;background:var(--surface);border:1px solid var(--line);border-radius:22px 22px 0 0;padding:10px 14px calc(14px + env(safe-area-inset-bottom,0px));transform:translateY(105%);transition:transform .32s cubic-bezier(.2,.9,.3,1);z-index:30;font-family:system-ui,sans-serif}
+.sheet.show{transform:none}
+#ov2{position:fixed;inset:0;background:rgba(0,0,0,.35);opacity:0;pointer-events:none;transition:opacity .3s;z-index:25}
+#ov2.show{opacity:1;pointer-events:auto}
+.grab{width:40px;height:4px;border-radius:2px;background:var(--line);margin:0 auto 10px}
+.svh{font-weight:600;margin-bottom:8px;display:flex;justify-content:space-between;gap:8px}
+.svh small{font-weight:400;color:var(--mute)}
+.prow{display:flex;align-items:center;gap:10px;padding:8px 10px;border-radius:12px;transition:background .15s}
+.prow.cur{background:var(--bubble)}
+.prow .nm{flex:1;text-align:left;font:15px system-ui,sans-serif}
+.prow small{display:block;color:var(--mute);font-size:12px}
+.tg{position:relative;width:42px;height:24px;border-radius:12px;background:var(--line);transition:background .2s;flex:none}
+.tg::after{content:"";position:absolute;top:3px;left:3px;width:18px;height:18px;border-radius:50%;background:#fff;transition:transform .2s}
+.tg.on{background:var(--accent)}
+.tg.on::after{transform:translateX(18px)}
+.keyrow{display:flex;gap:8px;margin-top:10px}
+.keyrow input{flex:1;min-width:0;padding:12px;border-radius:12px;border:1px solid var(--line);background:var(--bg);color:inherit;font:15px system-ui,sans-serif;outline:0}
+.keyrow input:focus{border-color:var(--accent)}
+.keyrow button{padding:0 16px;border-radius:12px;background:var(--accent);color:#fff;font:600 14px system-ui,sans-serif}
+.khint{color:var(--mute);font-size:12px;margin-top:6px;min-height:16px}
+.retry{display:block;margin-top:8px;padding:6px 12px;border-radius:999px;background:var(--bubble);font:13px system-ui,sans-serif}
 #slist{max-height:55vh;overflow-y:auto}
 @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
 </style>
@@ -104,10 +127,13 @@ a.opt{text-decoration:none;color:inherit}
   <textarea id="inp" rows="1" placeholder="Напишите сообщение"></textarea>
   <div class="row">
     <button class="ic" id="plus" aria-label="Прикрепить"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg></button>
+    <button class="svcb" id="svcb">Сервисы ▾</button>
     <button class="ic" id="send" disabled aria-label="Отправить"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 19V5M5 12l7-7 7 7"/></svg></button>
   </div>
   <input type="file" id="file" multiple accept="image/*,video/*,.pdf,.txt,.doc,.docx" hidden>
 </div></div>
+<div id="ov2"></div>
+<div id="sv" class="sheet"><div class="grab"></div><div class="svh"><span>Сервисы с API</span><small id="svn"></small></div><div id="svl"></div><div class="keyrow"><input id="kin" type="password" autocomplete="off" placeholder="API ключ"><button id="ksv">Сохранить</button></div><div class="khint" id="khint"></div></div>
 <script>
 var models=[["Fable 5.1","Самая мощная"],["Opus 5.5","Сложные задачи"],["Sonnet 5.5","Баланс скорости и ума"],["Haiku 5.5","Самая быстрая"]];
 var cur=0,files=[];
@@ -132,13 +158,14 @@ function esc(s){return s.replace(/[&<>]/g,function(c){return {"&":"&amp;","<":"&
 function add(cls,html){var d=document.createElement("div");d.className="msg "+cls;d.innerHTML=html;chat.appendChild(d);chat.scrollTo({top:chat.scrollHeight,behavior:"smooth"});return d}
 function go(){
   var t=inp.value.trim();if(!t&&!files.length)return;
+  if(act().length<2){openSvc("Подключи минимум 2 сервиса: включи их и вставь ключи.");return}
   if($("empty"))$("empty").remove();
   var a=files.map(function(n){return "<span class='att'>"+esc(n)+"</span>"}).join("");
-  var c=ensure(t||files[0]);var mh=a+(a&&t?"<br>":"")+esc(t);c.msgs.push({cls:"me",html:mh});add("me",mh);saveSide();
+  var c=ensure(t||files[0]);var mh=a+(a&&t?"<br>":"")+esc(t);c.msgs.push({cls:"me",html:mh,t:t+(files.length?" [файлы: "+files.join(", ")+"]":"")});add("me",mh);saveSide();
   files=[];chips();inp.value="";upd();
   var name=models[cur][0];
   var w=add("ai","<b>"+name+"</b><div class='typing'><span></span><span></span><span></span></div>");
-  setTimeout(function(){var rh="<b>"+name+" · "+lv[ef]+"</b>Это демо-ответ. Настоящие модели подключим к боту следующим шагом.";w.innerHTML=rh;c.msgs.push({cls:"ai",html:rh});saveSide()},1300);
+  ask(c,w);
 }
 send.onclick=go;
 var chats=[],projects=[],active=null,tab="chats",openP={},adding=false,pend=null;
@@ -195,12 +222,48 @@ function load(){
  call("/gradio_api").catch(function(){return call("")}).then(function(t){
   var m=t.match(/event: complete\s+data: (.*)/);var d=JSON.parse(m[1])[0];
   if(!Array.isArray(d)){fail(d&&d.error?d.error:"Поиск не сработал.");return}
-  sites=[sites[0]].concat(d);$("rf").classList.remove("spin");
+  sites=[sites[0]].concat(d.filter(function(x){return !/anthropic\.com|openrouter\.ai|groq\.com|openai\.com|ai\.google|aistudio\.google|googleapis/.test(x.d)}));$("rf").classList.remove("spin");
   drawSites(d.length?"Результаты поиска не проверены. Не вводи пароли и данные карты.":"Ничего не найдено.");
  }).catch(function(){fail("Сервер поиска не отвечает. Проверь, что Space запущен.")})
 }
 $("rf").onclick=function(e){e.stopPropagation();load()};
+var P=[{id:"anthropic",n:"Claude (Anthropic)",type:"anthropic",hint:"console.anthropic.com"},{id:"openrouter",n:"OpenRouter",type:"openai",url:"https://openrouter.ai/api/v1/chat/completions",model:"openrouter/auto",hint:"openrouter.ai/keys"},{id:"groq",n:"Groq",type:"openai",url:"https://api.groq.com/openai/v1/chat/completions",model:"llama-3.3-70b-versatile",hint:"console.groq.com/keys"},{id:"gemini",n:"Google Gemini",type:"gemini",model:"gemini-flash-latest",hint:"aistudio.google.com/apikey"}];
+var MODELID=["claude-fable-5-1","claude-opus-5-5","claude-sonnet-5-5","claude-haiku-5-5"];
+var ST={on:{},cur:"anthropic",keys:{}};
+try{var s0=JSON.parse(localStorage.getItem("cfs")||"{}");if(s0&&s0.keys){ST=s0;ST.on=ST.on||{}}}catch(e){}
+function sv(){try{localStorage.setItem("cfs",JSON.stringify(ST))}catch(e){}drawSvc()}
+function act(){return P.filter(function(p){return ST.on[p.id]&&ST.keys[p.id]})}
+function pcur(){return P.filter(function(p){return p.id===ST.cur})[0]||P[0]}
+function drawSvc(){var L=$("svl");L.innerHTML="";
+ P.forEach(function(p){var r=el(L,"div","prow"+(p.id===ST.cur?" cur":""));
+  var m=el(r,"button","nm",null,function(){ST.cur=p.id;$("kin").value="";sv()});
+  m.innerHTML="<span></span><small></small>";m.firstChild.textContent=p.n;m.lastChild.textContent=ST.keys[p.id]?"Ключ сохранён":"Нужен ключ";
+  var t=el(r,"button","tg"+(ST.on[p.id]?" on":""),null,function(){ST.on[p.id]=!ST.on[p.id];sv()});t.setAttribute("aria-label","Включить")});
+ var n=act().length;$("svn").textContent="Включено: "+n+(n<2?" (нужно минимум 2)":"");
+ $("kin").placeholder="API ключ для "+pcur().n;$("khint").textContent="Где взять: "+pcur().hint+". Ключ хранится только на этом устройстве.";
+ $("svcb").textContent=(act().length?pcur().n.split(" ")[0]:"Сервисы")+" ▾"}
+function openSvc(m){$("sv").classList.add("show");$("ov2").classList.add("show");drawSvc();if(m)$("khint").textContent=m}
+function closeSvc(){$("sv").classList.remove("show");$("ov2").classList.remove("show")}
+$("svcb").onclick=function(e){e.stopPropagation();toggle(false);sToggle(false);openSvc()};
+$("ov2").onclick=closeSvc;
+$("ksv").onclick=function(){var v=$("kin").value.trim();if(!v){$("khint").textContent="Вставь ключ в строку.";return}ST.keys[ST.cur]=v;ST.on[ST.cur]=true;$("kin").value="";sv()};
+function chk(r){return r.json().then(function(d){if(!r.ok)throw new Error((d.error&&(d.error.message||d.error))||("HTTP "+r.status));return d})}
+function req(p,key,model,hist){
+ if(p.type==="anthropic")return fetch("https://api.anthropic.com/v1/messages",{method:"POST",headers:{"content-type":"application/json","x-api-key":key,"anthropic-version":"2023-06-01","anthropic-dangerous-direct-browser-access":"true"},body:JSON.stringify({model:model,max_tokens:2048,messages:hist})}).then(chk).then(function(d){return d.content.map(function(b){return b.text||""}).join("")});
+ if(p.type==="gemini")return fetch("https://generativelanguage.googleapis.com/v1beta/models/"+model+":generateContent",{method:"POST",headers:{"content-type":"application/json","x-goog-api-key":key},body:JSON.stringify({contents:hist.map(function(m){return {role:m.role==="user"?"user":"model",parts:[{text:m.content}]}})})}).then(chk).then(function(d){return d.candidates[0].content.parts.map(function(x){return x.text||""}).join("")});
+ return fetch(p.url,{method:"POST",headers:{"content-type":"application/json","authorization":"Bearer "+key},body:JSON.stringify({model:model,messages:hist})}).then(chk).then(function(d){return d.choices[0].message.content})}
+function histOf(c){var h=[];c.msgs.forEach(function(m){if(!m.t)return;var r=m.cls==="me"?"user":"assistant";if(h.length&&h[h.length-1].role===r)h[h.length-1].content+="\n\n"+m.t;else h.push({role:r,content:m.t})});return h}
+function fin(c,w,p,txt,bad){
+ w.innerHTML="";var b=document.createElement("b");b.textContent=p.n+(p.id==="anthropic"?" · "+models[cur][0]:"");w.appendChild(b);
+ var s=document.createElement("span");s.textContent=txt;w.appendChild(s);
+ if(bad)el(w,"button","retry","↻ Повторить",function(){w.innerHTML="<b></b><div class='typing'><span></span><span></span><span></span></div>";ask(c,w)});
+ else{c.msgs.push({cls:"ai",html:w.innerHTML,t:txt});saveSide()}}
+function ask(c,w){
+ var p=pcur();if(!(ST.on[p.id]&&ST.keys[p.id])){var a0=act();if(!a0.length){fin(c,w,p,"Нет включённых сервисов с ключом.",true);return}p=a0[0];ST.cur=p.id;sv()}
+ var model=p.id==="anthropic"?MODELID[cur]:p.model;
+ req(p,ST.keys[p.id],model,histOf(c)).then(function(txt){fin(c,w,p,txt||"(пустой ответ)",false)}).catch(function(e){fin(c,w,p,"Ошибка: "+(e.message||e)+". Можно переключить сервис в «Сервисы» и нажать «Повторить».",true)})}
 drawSites();if(API)load();
+drawSvc();
 paint();
 renderSide();show();
 </script>
