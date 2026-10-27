@@ -114,6 +114,12 @@ a.opt{text-decoration:none;color:inherit}
 .cf input:focus{border-color:var(--accent)}
 .cf button{padding:11px;border-radius:12px;background:var(--bubble);font:600 14px system-ui,sans-serif}
 .addsv{align-self:flex-start;margin:0 0 6px 12px;padding:6px 12px;border-radius:999px;background:var(--bubble);color:var(--accent);font:600 13px system-ui,sans-serif}
+.sheet{left:12px;right:auto;margin:0;max-width:none;border-radius:20px;padding:12px;overflow-y:auto;transform:scale(.8);opacity:0;pointer-events:none;box-shadow:0 18px 44px rgba(0,0,0,.35);transition:transform .28s cubic-bezier(.2,.9,.3,1.25),opacity .18s}
+.sheet.show{transform:none;opacity:1;pointer-events:auto}
+#ov2{background:transparent}
+.grab{display:none}
+.svcb{margin-left:12px;margin-right:auto}
+.cf button.del{color:#e5484d}
 #slist{max-height:55vh;overflow-y:auto}
 @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
 </style>
@@ -140,7 +146,7 @@ a.opt{text-decoration:none;color:inherit}
   <input type="file" id="file" multiple accept="image/*,video/*,.pdf,.txt,.doc,.docx" hidden>
 </div></div>
 <div id="ov2"></div>
-<div id="sv" class="sheet"><div class="grab"></div><div class="svh"><span>Сервисы с API</span><small id="svn"></small></div><div id="svl"></div><button class="addp" id="addp">+ Свой сервис с API</button><div class="cf" id="cf"><input id="cn" placeholder="Название сервиса"><input id="cu" placeholder="Адрес API: https://…/v1/chat/completions"><input id="cm" placeholder="Модель (id из документации)"><button id="cadd">Добавить</button></div><div class="keyrow"><input id="kin" type="password" autocomplete="off" placeholder="API ключ"><button id="ksv">Сохранить</button></div><div class="khint" id="khint"></div></div>
+<div id="sv" class="sheet"><div class="grab"></div><div class="svh"><span>Сервисы с API</span><small id="svn"></small></div><div id="svl"></div><button class="addp" id="addp">+ Свой сервис с API</button><div class="cf" id="cf"><input id="cn" placeholder="Название сервиса"><input id="cu" placeholder="Адрес API: https://…/v1/chat/completions"><input id="cm" placeholder="Модель (id из документации)"><button id="cadd">Добавить</button><button id="cdel" class="del" style="display:none">Удалить сервис</button></div><div class="keyrow"><input id="kin" type="password" autocomplete="off" placeholder="API ключ"><button id="ksv">Сохранить</button></div><div class="khint" id="khint"></div></div>
 <script>
 var models=[["Fable 5.1","Самая мощная"],["Opus 5.5","Сложные задачи"],["Sonnet 5.5","Баланс скорости и ума"],["Haiku 5.5","Самая быстрая"]];
 var cur=0,files=[];
@@ -212,7 +218,7 @@ hit.onpointerdown=function(e){hit.setPointerCapture(e.pointerId);hit.classList.a
 hit.onpointermove=function(e){if(hit.classList.contains("down"))pick(e.clientX)};
 function up(){if(hit.classList.contains("down")){hit.classList.remove("down");buz(8)}}
 hit.onpointerup=up;hit.onpointercancel=up;
-var sites=[{n:"Claude.ai",d:"Официальный бесплатный план",u:"https://claude.ai"}];
+var sites=[];
 var smenu=$("smenu");
 function sToggle(s){smenu.classList.toggle("show",s)}
 function drawSites(msg){var L=$("slist");L.innerHTML="";sites.filter(function(s){return !hostUsed(s.d)}).forEach(function(s){var a=el(L,"a","opt");a.href=s.u;a.target="_blank";a.rel="noopener";var sp=document.createElement("span");sp.textContent=s.n;var sm=document.createElement("small");sm.textContent=s.d;sp.appendChild(sm);a.appendChild(sp);if(s.n!=="Claude.ai")el(L,"button","addsv","+ В сервисы",function(){prefill(s)})});if(msg)el(L,"div","hint",msg)}
@@ -222,15 +228,15 @@ document.addEventListener("click",function(e){if(!smenu.contains(e.target))sTogg
 var API=new URLSearchParams(location.search).get("api")||"https://ctepochkin-claude.hf.space";
 function fail(m){$("rf").classList.remove("spin");drawSites(m)}
 function load(){
- var b=$("rf");b.classList.add("spin");
+ var b=$("rf");b.classList.add("spin");drawSites("Идёт поиск и проверка API, это займёт до минуты…");
  if(!API){fail("Не указан адрес сервера поиска (параметр ?api= в ссылке).");return}
  var base=API.replace(/\/$/,"");
  function call(p){return fetch(base+p+"/call/sites",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({data:[]})}).then(function(r){if(!r.ok)throw 0;return r.json()}).then(function(j){return fetch(base+p+"/call/sites/"+j.event_id)}).then(function(r){return r.text()})}
  call("/gradio_api").catch(function(){return call("")}).then(function(t){
   var m=t.match(/event: complete\s+data: (.*)/);var d=JSON.parse(m[1])[0];
   if(!Array.isArray(d)){fail(d&&d.error?d.error:"Поиск не сработал.");return}
-  sites=[sites[0]].concat(d.filter(function(x){return !/anthropic\.com|openrouter\.ai|groq\.com|openai\.com|ai\.google|aistudio\.google|googleapis/.test(x.d)}));$("rf").classList.remove("spin");
-  drawSites(d.length?"Результаты не проверены, не вводи пароли и данные карты. Если у сайта есть API, нажми «+ В сервисы», он здесь исчезнет.":"Ничего не найдено.");
+  sites=d;$("rf").classList.remove("spin");
+  drawSites(d.length?"Результаты не проверены, не вводи пароли и данные карты. Если у сайта есть API, нажми «+ В сервисы», он здесь исчезнет.":"Сайтов с открытым API не нашлось, нажми обновить ещё раз.");
  }).catch(function(){fail("Сервер поиска не отвечает. Проверь, что Space запущен.")})
 }
 $("rf").onclick=function(e){e.stopPropagation();load()};
@@ -278,6 +284,30 @@ function ask(c,w){
  var p=pcur();if(!(ST.on[p.id]&&ST.keys[p.id])){var a0=act();if(!a0.length){fin(c,w,p,"Нет включённых сервисов с ключом.",true);return}p=a0[0];ST.cur=p.id;sv()}
  var model=p.id==="anthropic"?MODELID[cur]:p.model;
  req(p,ST.keys[p.id],model,histOf(c)).then(function(txt){fin(c,w,p,txt||"(пустой ответ)",false)}).catch(function(e){fin(c,w,p,"Ошибка: "+(e.message||e)+". Можно переключить сервис в «Сервисы» и нажать «Повторить».",true)})}
+var editId=null;
+function fillForm(p){$("cn").value=p?p.n:"";$("cu").value=p?p.url:"";$("cm").value=p?p.model:"";$("cadd").textContent=p?"Сохранить":"Добавить";$("cdel").style.display=p?"block":"none";$("cf").classList.add("show")}
+function drawSvc(){var L=$("svl");L.innerHTML="";
+ AP().forEach(function(p){var r=el(L,"div","prow"+(p.id===ST.cur?" cur":""));
+  var m=el(r,"button","nm",null,function(){ST.cur=p.id;editId=p.id;$("kin").value="";fillForm(p);sv()});
+  m.innerHTML="<span></span><small></small>";m.firstChild.textContent=p.n;m.lastChild.textContent=ST.keys[p.id]?"Ключ сохранён · нажми, чтобы изменить":"Нужен ключ · нажми, чтобы настроить";
+  el(r,"button","tg"+(ST.on[p.id]?" on":""),null,function(){ST.on[p.id]=!ST.on[p.id];sv()}).setAttribute("aria-label","Включить")});
+ if(!AP().length)el(L,"div","hint","Пока пусто. В меню с глобусом найди сайт и нажми «+ В сервисы».");
+ var n=act().length;$("svn").textContent="Включено: "+n+(n<2?" (нужно минимум 2)":"");
+ $("kin").placeholder=pcur().id?"Новый ключ для "+pcur().n:"Сначала добавь сервис";
+ $("khint").textContent="Ключ хранится только на этом устройстве.";
+ $("svcb").textContent=(act().length?pcur().n.split(" ")[0]:"Сервисы")+" ▾"}
+function place(){var b=$("svcb").getBoundingClientRect(),s=$("sv"),w=Math.min(340,innerWidth-24);s.style.width=w+"px";var left=Math.max(12,Math.min(b.left,innerWidth-w-12));s.style.left=left+"px";s.style.bottom=(innerHeight-b.top+10)+"px";s.style.maxHeight=Math.max(200,b.top-30)+"px";s.style.transformOrigin=(b.left+b.width/2-left)+"px 100%"}
+function openSvc(m){drawSvc();place();$("sv").classList.add("show");$("ov2").classList.add("show");if(m)$("khint").textContent=m}
+function closeSvc(){$("sv").classList.remove("show");$("ov2").classList.remove("show")}
+function prefill(s){sToggle(false);editId=null;fillForm(null);$("cn").value=s.d;$("cu").value=s.e||("https://"+s.d+"/v1/chat/completions");$("cm").value=s.m||"";openSvc(s.m?"API найден. Проверь данные, нажми «Добавить» и вставь ключ.":"API найден, но модель не определилась: впиши её из документации сайта.")}
+$("svcb").onclick=function(e){e.stopPropagation();toggle(false);sToggle(false);$("sv").classList.contains("show")?closeSvc():openSvc()};
+$("addp").onclick=function(){editId=null;fillForm(null)};
+$("cadd").onclick=function(){var n=$("cn").value.trim(),u=$("cu").value.trim(),m=$("cm").value.trim();
+ if(!n||u.indexOf("https://")!==0||!m){$("khint").textContent="Нужны название, адрес с https:// и модель.";return}
+ var p=AP().filter(function(z){return z.id===editId})[0];
+ if(p){p.n=n;p.url=u;p.model=m}else{var id="c"+Date.now();ST.custom=(ST.custom||[]).concat([{id:id,n:n,type:"openai",url:u,model:m,hint:"сайт сервиса, раздел API",custom:1}]);ST.cur=id;editId=id}
+ $("cf").classList.remove("show");sv();drawSites();$("khint").textContent=ST.keys[ST.cur]?"Сохранено.":"Сохранено. Теперь вставь ключ ниже."};
+$("cdel").onclick=function(){if(!editId)return;ST.custom=(ST.custom||[]).filter(function(z){return z.id!==editId});delete ST.keys[editId];delete ST.on[editId];if(ST.cur===editId)ST.cur=(ST.custom[0]||{}).id||"";editId=null;$("cf").classList.remove("show");sv();drawSites()};
 drawSites();if(API)load();
 drawSvc();
 paint();
