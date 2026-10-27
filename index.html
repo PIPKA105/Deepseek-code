@@ -185,7 +185,7 @@ function drawSites(msg){var L=$("slist");L.innerHTML="";sites.forEach(function(s
 $("gl").onclick=function(e){e.stopPropagation();toggle(false);sToggle(!smenu.classList.contains("show"))};
 pill.addEventListener("click",function(){sToggle(false)});
 document.addEventListener("click",function(e){if(!smenu.contains(e.target))sToggle(false)});
-var API=new URLSearchParams(location.search).get("api")||"";
+var API=new URLSearchParams(location.search).get("api")||"https://ctepochkin-claude.hf.space";
 function fail(m){$("rf").classList.remove("spin");drawSites(m)}
 function load(){
  var b=$("rf");b.classList.add("spin");
