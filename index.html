@@ -84,6 +84,66 @@ textarea{width:100%;border:0;outline:0;resize:none;background:none;color:inherit
 .rf.spin svg{animation:spin 1s linear infinite}
 @keyframes spin{to{transform:rotate(360deg)}}
 a.opt{text-decoration:none;color:inherit}
+.svcb{font:13px system-ui,sans-serif;padding:7px 12px;border-radius:999px;background:var(--bubble);transition:transform .15s}
+.svcb:active{transform:scale(.94)}
+.sheet{position:fixed;left:0;right:0;bottom:0;max-width:760px;margin:0 auto;background:var(--surface);border:1px solid var(--line);border-radius:22px 22px 0 0;padding:10px 14px calc(14px + env(safe-area-inset-bottom,0px));transform:translateY(105%);transition:transform .32s cubic-bezier(.2,.9,.3,1);z-index:30;font-family:system-ui,sans-serif}
+.sheet.show{transform:none}
+#ov2{position:fixed;inset:0;background:rgba(0,0,0,.35);opacity:0;pointer-events:none;transition:opacity .3s;z-index:25}
+#ov2.show{opacity:1;pointer-events:auto}
+.grab{width:40px;height:4px;border-radius:2px;background:var(--line);margin:0 auto 10px}
+.svh{font-weight:600;margin-bottom:8px;display:flex;justify-content:space-between;gap:8px}
+.svh small{font-weight:400;color:var(--mute)}
+.prow{display:flex;align-items:center;gap:10px;padding:8px 10px;border-radius:12px;transition:background .15s}
+.prow.cur{background:var(--bubble)}
+.prow .nm{flex:1;text-align:left;font:15px system-ui,sans-serif}
+.prow small{display:block;color:var(--mute);font-size:12px}
+.tg{position:relative;width:42px;height:24px;border-radius:12px;background:var(--line);transition:background .2s;flex:none}
+.tg::after{content:"";position:absolute;top:3px;left:3px;width:18px;height:18px;border-radius:50%;background:#fff;transition:transform .2s}
+.tg.on{background:var(--accent)}
+.tg.on::after{transform:translateX(18px)}
+.keyrow{display:flex;gap:8px;margin-top:10px}
+.keyrow input{flex:1;min-width:0;padding:12px;border-radius:12px;border:1px solid var(--line);background:var(--bg);color:inherit;font:15px system-ui,sans-serif;outline:0}
+.keyrow input:focus{border-color:var(--accent)}
+.keyrow button{padding:0 16px;border-radius:12px;background:var(--accent);color:#fff;font:600 14px system-ui,sans-serif}
+.khint{color:var(--mute);font-size:12px;margin-top:6px;min-height:16px}
+.retry{display:block;margin-top:8px;padding:6px 12px;border-radius:999px;background:var(--bubble);font:13px system-ui,sans-serif}
+.addp{display:block;width:100%;text-align:left;margin-top:6px;padding:10px;border-radius:12px;color:var(--accent);font:600 14px system-ui,sans-serif}
+.cf{display:none;flex-direction:column;gap:6px;margin-top:4px}
+.cf.show{display:flex}
+.cf input{padding:11px;border-radius:12px;border:1px solid var(--line);background:var(--bg);color:inherit;font:14px system-ui,sans-serif;outline:0}
+.cf input:focus{border-color:var(--accent)}
+.cf button{padding:11px;border-radius:12px;background:var(--bubble);font:600 14px system-ui,sans-serif}
+.addsv{align-self:flex-start;margin:0 0 6px 12px;padding:6px 12px;border-radius:999px;background:var(--bubble);color:var(--accent);font:600 13px system-ui,sans-serif}
+.sheet{left:12px;right:auto;margin:0;max-width:none;border-radius:20px;padding:12px;overflow-y:auto;transform:scale(.8);opacity:0;pointer-events:none;box-shadow:0 18px 44px rgba(0,0,0,.35);transition:transform .28s cubic-bezier(.2,.9,.3,1.25),opacity .18s}
+.sheet.show{transform:none;opacity:1;pointer-events:auto}
+#ov2{background:transparent}
+.grab{display:none}
+.svcb{margin-left:12px;margin-right:auto}
+.cf button.del{color:#e5484d}
+.keyrow{display:none}
+.cf label{font:12px system-ui,sans-serif;color:var(--mute);margin:4px 2px 0}
+.svh span{white-space:nowrap}
+.mt{margin:6px 6px 4px}
+#avl{max-height:48vh;overflow-y:auto}
+.msg.ai>span{display:block}
+.fcard{display:flex;gap:12px;align-items:center;padding:10px 12px;margin:8px 0;max-width:340px;border:1px solid var(--line);border-radius:14px;background:var(--surface);cursor:pointer;transition:transform .15s}
+.fcard:active{transform:scale(.97)}
+.fi{width:44px;height:44px;border-radius:10px;background:#3a2a10;color:var(--accent);display:grid;place-items:center;font:600 16px ui-monospace,monospace;font-style:normal;flex:none}
+.ft{display:block;font:600 15px system-ui,sans-serif}
+.fcard small{color:var(--mute);font:13px system-ui,sans-serif}
+.fv{position:fixed;inset:0;background:var(--bg);z-index:60;display:flex;flex-direction:column;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);transform:translateY(100%);transition:transform .32s cubic-bezier(.2,.9,.3,1)}
+.fv.show{transform:none}
+.fvh{display:flex;align-items:center;justify-content:space-between;padding:8px 10px;font-family:system-ui,sans-serif}
+#fvn{font-weight:600;flex:1;text-align:center;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;padding:0 8px}
+#fvf{flex:1;border:0;width:100%;background:#fff}
+#fvc{flex:1;overflow:auto;margin:0;padding:14px;font:13px/1.5 ui-monospace,Menlo,monospace;white-space:pre-wrap;word-break:break-all;display:none}
+.fvmenu{position:absolute;top:calc(56px + env(safe-area-inset-top,0px));right:10px;min-width:220px;background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:6px;box-shadow:0 14px 36px rgba(0,0,0,.35);opacity:0;transform:scale(.9) translateY(-6px);transform-origin:top right;pointer-events:none;transition:opacity .18s,transform .22s cubic-bezier(.2,.9,.3,1.25);z-index:2}
+.fvmenu.show{opacity:1;transform:none;pointer-events:auto}
+.fvi{display:flex;justify-content:space-between;width:100%;padding:12px;border-radius:10px;text-align:left;font:15px system-ui,sans-serif}
+.fvi:hover{background:var(--bubble)}
+.fvs{height:1px;background:var(--line);margin:4px 6px}
+#toast{position:fixed;left:50%;bottom:90px;transform:translateX(-50%) translateY(20px);background:var(--ink);color:var(--bg);padding:10px 16px;border-radius:999px;font:14px system-ui,sans-serif;opacity:0;pointer-events:none;transition:.25s;z-index:70}
+#toast.show{opacity:1;transform:translateX(-50%)}
 #slist{max-height:55vh;overflow-y:auto}
 @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
 </style>
@@ -95,7 +155,7 @@ a.opt{text-decoration:none;color:inherit}
   <div class="menu sm" id="smenu"><div class="elab sh"><span>Сайты с бесплатными моделями</span><button class="ic rf" id="rf" aria-label="Обновить"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 12a8 8 0 1 1-2.3-5.7M20 4v5h-5"/></svg></button></div><div id="slist"></div></div>
   <button class="pill" id="pill" aria-haspopup="true"><span id="mname">Fable 5.1</span>
     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M6 9l6 6 6-6"/></svg></button>
-  <div class="menu" id="menu"><div id="mopts"></div><div class="eff"><div class="elab"><span>Усилие</span><b id="elv"></b></div><div class="hit" id="hit"><div class="trk" id="trk"><div class="fill" id="fill"></div><i class="tk" style="left:25%"></i><i class="tk" style="left:50%"></i><i class="tk" style="left:75%"></i><div class="thumb" id="thumb"></div></div></div></div></div>
+  <div class="menu" id="menu"><div class="tabs mt"><button id="mt1" class="tab on">Модели</button><button id="mt2" class="tab">Доступные</button></div><div id="mopts"></div><div id="avl" style="display:none"></div><div class="eff"><div class="elab"><span>Усилие</span><b id="elv"></b></div><div class="hit" id="hit"><div class="trk" id="trk"><div class="fill" id="fill"></div><i class="tk" style="left:25%"></i><i class="tk" style="left:50%"></i><i class="tk" style="left:75%"></i><div class="thumb" id="thumb"></div></div></div></div></div>
 </header>
 <aside id="side"><button class="item plus" id="nc">+ Новый чат</button><div class="tabs"><button id="tc" class="tab on">Чаты</button><button id="tp" class="tab">Проекты</button></div><div id="list"></div></aside><div id="ov"></div>
 <div id="chat"><div class="empty" id="empty">Привет! О чём поговорим?</div></div>
@@ -104,10 +164,14 @@ a.opt{text-decoration:none;color:inherit}
   <textarea id="inp" rows="1" placeholder="Напишите сообщение"></textarea>
   <div class="row">
     <button class="ic" id="plus" aria-label="Прикрепить"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg></button>
+    <button class="svcb" id="svcb">Сервисы ▾</button>
     <button class="ic" id="send" disabled aria-label="Отправить"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 19V5M5 12l7-7 7 7"/></svg></button>
   </div>
   <input type="file" id="file" multiple accept="image/*,video/*,.pdf,.txt,.doc,.docx" hidden>
 </div></div>
+<div id="fv" class="fv"><div class="fvh"><button class="ic" id="fvx" aria-label="Закрыть"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 6l12 12M18 6L6 18"/></svg></button><span id="fvn"></span><button class="ic" id="fvm" aria-label="Меню"><svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="5" r="2"/><circle cx="12" cy="12" r="2"/><circle cx="12" cy="19" r="2"/></svg></button></div><div class="fvmenu" id="fvmenu"></div><iframe id="fvf" sandbox="allow-scripts"></iframe><pre id="fvc"></pre></div><div id="toast"></div>
+<div id="ov2"></div>
+<div id="sv" class="sheet"><div class="grab"></div><div class="svh"><span>Сервисы с API</span><small id="svn"></small></div><div id="svl"></div><button class="addp" id="addp">+ Свой сервис с API</button><div class="cf" id="cf"><label>Название</label><input id="cn" placeholder="Название сервиса"><label>Адрес API</label><input id="cu" placeholder="Адрес API: https://…/v1/chat/completions"><label>Модель</label><input id="cm" placeholder="Модель (id из документации)"><label>API ключ</label><input id="ck" type="password" autocomplete="off" placeholder="Вставь API ключ сюда"><button id="cadd">Добавить</button><button id="cdel" class="del" style="display:none">Удалить сервис</button></div><div class="keyrow"><input id="kin" type="password" autocomplete="off" placeholder="API ключ"><button id="ksv">Сохранить</button></div><div class="khint" id="khint"></div></div>
 <script>
 var models=[["Fable 5.1","Самая мощная"],["Opus 5.5","Сложные задачи"],["Sonnet 5.5","Баланс скорости и ума"],["Haiku 5.5","Самая быстрая"]];
 var cur=0,files=[];
@@ -119,7 +183,7 @@ function draw(){$("mopts").innerHTML="";models.forEach(function(m,i){
   b.onclick=function(){cur=i;$("mname").textContent=m[0];draw();toggle(false)};
   $("mopts").appendChild(b)})}
 function toggle(s){menu.classList.toggle("show",s);pill.classList.toggle("open",s)}
-pill.onclick=function(e){e.stopPropagation();toggle(!menu.classList.contains("show"))};
+pill.onclick=function(e){e.stopPropagation();var o=!menu.classList.contains("show");if(o&&act().length)setMT(2);toggle(o)};
 document.onclick=function(e){if(!menu.contains(e.target))toggle(false)};
 draw();
 function upd(){send.disabled=!inp.value.trim()&&!files.length;inp.style.height="auto";inp.style.height=inp.scrollHeight+"px"}
@@ -132,13 +196,14 @@ function esc(s){return s.replace(/[&<>]/g,function(c){return {"&":"&amp;","<":"&
 function add(cls,html){var d=document.createElement("div");d.className="msg "+cls;d.innerHTML=html;chat.appendChild(d);chat.scrollTo({top:chat.scrollHeight,behavior:"smooth"});return d}
 function go(){
   var t=inp.value.trim();if(!t&&!files.length)return;
+  if(act().length<2){openSvc("Добавь минимум 2 сервиса из поиска сайтов (глобус) и вставь ключи.");return}
   if($("empty"))$("empty").remove();
   var a=files.map(function(n){return "<span class='att'>"+esc(n)+"</span>"}).join("");
-  var c=ensure(t||files[0]);var mh=a+(a&&t?"<br>":"")+esc(t);c.msgs.push({cls:"me",html:mh});add("me",mh);saveSide();
+  var c=ensure(t||files[0]);var mh=a+(a&&t?"<br>":"")+esc(t);c.msgs.push({cls:"me",html:mh,t:t+(files.length?" [файлы: "+files.join(", ")+"]":"")});add("me",mh);saveSide();
   files=[];chips();inp.value="";upd();
   var name=models[cur][0];
   var w=add("ai","<b>"+name+"</b><div class='typing'><span></span><span></span><span></span></div>");
-  setTimeout(function(){var rh="<b>"+name+" · "+lv[ef]+"</b>Это демо-ответ. Настоящие модели подключим к боту следующим шагом.";w.innerHTML=rh;c.msgs.push({cls:"ai",html:rh});saveSide()},1300);
+  ask(c,w);
 }
 send.onclick=go;
 var chats=[],projects=[],active=null,tab="chats",openP={},adding=false,pend=null;
@@ -178,29 +243,155 @@ hit.onpointerdown=function(e){hit.setPointerCapture(e.pointerId);hit.classList.a
 hit.onpointermove=function(e){if(hit.classList.contains("down"))pick(e.clientX)};
 function up(){if(hit.classList.contains("down")){hit.classList.remove("down");buz(8)}}
 hit.onpointerup=up;hit.onpointercancel=up;
-var sites=[{n:"Claude.ai",d:"Официальный бесплатный план",u:"https://claude.ai"}];
+var sites=[];
 var smenu=$("smenu");
 function sToggle(s){smenu.classList.toggle("show",s)}
-function drawSites(msg){var L=$("slist");L.innerHTML="";sites.forEach(function(s){var a=el(L,"a","opt");a.href=s.u;a.target="_blank";a.rel="noopener";var sp=document.createElement("span");sp.textContent=s.n;if(s.p||(s.d&&/платн|paywall|subscription|premium|деньг|оплат|подписк/i.test(s.d))){var badge=document.createElement("small");badge.style.color="var(--accent)";badge.style.fontWeight="600";badge.textContent=" · платный";sp.appendChild(badge)}var sm=document.createElement("small");sm.textContent=s.d;sp.appendChild(sm);a.appendChild(sp)});if(msg)el(L,"div","hint",msg)}
+function drawSites(msg){var L=$("slist");L.innerHTML="";sites.filter(function(s){return !hostUsed(s.d)}).forEach(function(s){var a=el(L,"a","opt");a.href=s.u;a.target="_blank";a.rel="noopener";var sp=document.createElement("span");sp.textContent=s.n;var sm=document.createElement("small");sm.textContent=s.d;sp.appendChild(sm);a.appendChild(sp);if(s.n!=="Claude.ai")el(L,"button","addsv","+ В сервисы",function(){prefill(s)})});if(msg)el(L,"div","hint",msg)}
 $("gl").onclick=function(e){e.stopPropagation();toggle(false);sToggle(!smenu.classList.contains("show"))};
 pill.addEventListener("click",function(){sToggle(false)});
 document.addEventListener("click",function(e){if(!smenu.contains(e.target))sToggle(false)});
 var API=new URLSearchParams(location.search).get("api")||"https://ctepochkin-claude.hf.space";
 function fail(m){$("rf").classList.remove("spin");drawSites(m)}
 function load(){
- var b=$("rf");b.classList.add("spin");
+ var b=$("rf");b.classList.add("spin");drawSites("Идёт поиск и проверка API, это займёт до минуты…");
  if(!API){fail("Не указан адрес сервера поиска (параметр ?api= в ссылке).");return}
  var base=API.replace(/\/$/,"");
  function call(p){return fetch(base+p+"/call/sites",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({data:[]})}).then(function(r){if(!r.ok)throw 0;return r.json()}).then(function(j){return fetch(base+p+"/call/sites/"+j.event_id)}).then(function(r){return r.text()})}
  call("/gradio_api").catch(function(){return call("")}).then(function(t){
   var m=t.match(/event: complete\s+data: (.*)/);var d=JSON.parse(m[1])[0];
   if(!Array.isArray(d)){fail(d&&d.error?d.error:"Поиск не сработал.");return}
-  sites=[sites[0]].concat(d);$("rf").classList.remove("spin");
-  drawSites(d.length?"Результаты поиска не проверены. Не вводи пароли и данные карты.":"Ничего не найдено.");
+  sites=d;$("rf").classList.remove("spin");
+  drawSites(d.length?"Результаты не проверены, не вводи пароли и данные карты. Если у сайта есть API, нажми «+ В сервисы», он здесь исчезнет.":"Сайтов с открытым API не нашлось, нажми обновить ещё раз.");
  }).catch(function(){fail("Сервер поиска не отвечает. Проверь, что Space запущен.")})
 }
 $("rf").onclick=function(e){e.stopPropagation();load()};
+var P=[{id:"anthropic",n:"Claude (Anthropic)",type:"anthropic",hint:"console.anthropic.com"},{id:"openrouter",n:"OpenRouter",type:"openai",url:"https://openrouter.ai/api/v1/chat/completions",model:"openrouter/auto",hint:"openrouter.ai/keys"},{id:"groq",n:"Groq",type:"openai",url:"https://api.groq.com/openai/v1/chat/completions",model:"llama-3.3-70b-versatile",hint:"console.groq.com/keys"},{id:"gemini",n:"Google Gemini",type:"gemini",model:"gemini-flash-latest",hint:"aistudio.google.com/apikey"}];
+var MODELID=["claude-fable-5-1","claude-opus-5-5","claude-sonnet-5-5","claude-haiku-5-5"];
+var ST={on:{},cur:"anthropic",keys:{}};
+try{var s0=JSON.parse(localStorage.getItem("cfs")||"{}");if(s0&&s0.keys){ST=s0;ST.on=ST.on||{}}}catch(e){}
+function sv(){try{localStorage.setItem("cfs",JSON.stringify(ST))}catch(e){}drawSvc()}
+function AP(){return ST.custom||[]}
+function act(){return AP().filter(function(p){return ST.on[p.id]&&ST.keys[p.id]})}
+function pcur(){return AP().filter(function(p){return p.id===ST.cur})[0]||{id:"",n:"Сервис",hint:"сайт сервиса, раздел API"}}
+function drawSvc(){var L=$("svl");L.innerHTML="";
+ AP().forEach(function(p){var r=el(L,"div","prow"+(p.id===ST.cur?" cur":""));
+  var m=el(r,"button","nm",null,function(){ST.cur=p.id;$("kin").value="";sv()});
+  m.innerHTML="<span></span><small></small>";m.firstChild.textContent=p.n;m.lastChild.textContent=ST.keys[p.id]?"Ключ сохранён":"Нужен ключ";
+  if(p.custom)el(r,"button","x","×",function(){ST.custom=ST.custom.filter(function(z){return z.id!==p.id});delete ST.keys[p.id];delete ST.on[p.id];if(ST.cur===p.id)ST.cur="anthropic";sv();drawSites()});var t=el(r,"button","tg"+(ST.on[p.id]?" on":""),null,function(){ST.on[p.id]=!ST.on[p.id];sv()});t.setAttribute("aria-label","Включить")});
+ if(!AP().length)el(L,"div","hint","Пока пусто. В меню с глобусом найди сайт и нажми «+ В сервисы».");var n=act().length;$("svn").textContent="Включено: "+n+(n<2?" (нужно минимум 2)":"");
+ $("kin").placeholder="API ключ для "+pcur().n;$("khint").textContent="Где взять: "+pcur().hint+". Ключ хранится только на этом устройстве.";
+ $("svcb").textContent=(act().length?pcur().n.split(" ")[0]:"Сервисы")+" ▾"}
+function openSvc(m){$("sv").classList.add("show");$("ov2").classList.add("show");drawSvc();if(m)$("khint").textContent=m}
+function closeSvc(){$("sv").classList.remove("show");$("ov2").classList.remove("show")}
+$("svcb").onclick=function(e){e.stopPropagation();toggle(false);sToggle(false);openSvc()};
+$("ov2").onclick=closeSvc;
+$("ksv").onclick=function(){var v=$("kin").value.trim();if(!pcur().id){$("khint").textContent="Сначала добавь сервис из поиска сайтов.";return}if(!v){$("khint").textContent="Вставь ключ в строку.";return}ST.keys[ST.cur]=v;ST.on[ST.cur]=true;$("kin").value="";sv()};
+function prefill(s){sToggle(false);$("cn").value=s.d;$("cu").value="https://"+s.d+"/v1/chat/completions";$("cm").value="";$("cf").classList.add("show");openSvc("Проверь адрес API и модель в документации сайта (раздел API), потом нажми «Добавить».")}
+function hostUsed(h){return !!h&&(ST.custom||[]).some(function(c){try{return new URL(c.url).hostname.indexOf(h)>-1}catch(e){return false}})}
+$("addp").onclick=function(){$("cf").classList.toggle("show")};
+$("cadd").onclick=function(){var n=$("cn").value.trim(),u=$("cu").value.trim(),m=$("cm").value.trim();
+ if(!n||u.indexOf("https://")!==0||!m){$("khint").textContent="Нужны название, адрес с https:// и модель.";return}
+ var id="c"+Date.now();ST.custom=(ST.custom||[]).concat([{id:id,n:n,type:"openai",url:u,model:m,hint:"сайт сервиса, раздел API",custom:1}]);ST.cur=id;
+ $("cn").value="";$("cu").value="";$("cm").value="";$("cf").classList.remove("show");sv();drawSites();
+ $("khint").textContent="Добавлено. Теперь вставь ключ и нажми «Сохранить»."};
+function chk(r){return r.json().then(function(d){if(!r.ok)throw new Error((d.error&&(d.error.message||d.error))||("HTTP "+r.status));return d})}
+function req(p,key,model,hist){
+ if(p.type==="anthropic")return fetch("https://api.anthropic.com/v1/messages",{method:"POST",headers:{"content-type":"application/json","x-api-key":key,"anthropic-version":"2023-06-01","anthropic-dangerous-direct-browser-access":"true"},body:JSON.stringify({model:model,max_tokens:2048,messages:hist})}).then(chk).then(function(d){return d.content.map(function(b){return b.text||""}).join("")});
+ if(p.type==="gemini")return fetch("https://generativelanguage.googleapis.com/v1beta/models/"+model+":generateContent",{method:"POST",headers:{"content-type":"application/json","x-goog-api-key":key},body:JSON.stringify({contents:hist.map(function(m){return {role:m.role==="user"?"user":"model",parts:[{text:m.content}]}})})}).then(chk).then(function(d){return d.candidates[0].content.parts.map(function(x){return x.text||""}).join("")});
+ return xj(p.url,key,JSON.stringify({model:model,messages:hist})).then(function(d){return d.choices[0].message.content})}
+function histOf(c){var h=[];c.msgs.forEach(function(m){if(!m.t)return;var r=m.cls==="me"?"user":"assistant";if(h.length&&h[h.length-1].role===r)h[h.length-1].content+="\n\n"+m.t;else h.push({role:r,content:m.t})});return h}
+function fin(c,w,p,txt,bad){
+ w.innerHTML="";var b=document.createElement("b");b.textContent=p.n+(p.id==="anthropic"?" · "+models[cur][0]:" · "+(p.model||""));w.appendChild(b);
+ var s=document.createElement("span");s.textContent=txt;w.appendChild(s);
+ if(bad)el(w,"button","retry","↻ Повторить",function(){w.innerHTML="<b></b><div class='typing'><span></span><span></span><span></span></div>";ask(c,w)});
+ else{c.msgs.push({cls:"ai",html:w.innerHTML,t:txt});saveSide()}}
+function ask(c,w){
+ var p=pcur();if(!(ST.on[p.id]&&ST.keys[p.id])){var a0=act();if(!a0.length){fin(c,w,p,"Нет включённых сервисов с ключом.",true);return}p=a0[0];ST.cur=p.id;sv()}
+ var model=p.id==="anthropic"?MODELID[cur]:p.model;
+ req(p,ST.keys[p.id],model,histOf(c)).then(function(txt){fin(c,w,p,txt||"(пустой ответ)",false)}).catch(function(e){fin(c,w,p,"Ошибка: "+(e.message||e)+". Можно переключить сервис в «Сервисы» и нажать «Повторить».",true)})}
+var editId=null;
+function fillForm(p){$("cn").value=p?p.n:"";$("cu").value=p?p.url:"";$("cm").value=p?p.model:"";$("cadd").textContent=p?"Сохранить":"Добавить";$("cdel").style.display=p?"block":"none";$("cf").classList.add("show")}
+function drawSvc(){var L=$("svl");L.innerHTML="";
+ AP().forEach(function(p){var r=el(L,"div","prow"+(p.id===ST.cur?" cur":""));
+  var m=el(r,"button","nm",null,function(){ST.cur=p.id;editId=p.id;$("kin").value="";fillForm(p);sv()});
+  m.innerHTML="<span></span><small></small>";m.firstChild.textContent=p.n;m.lastChild.textContent=(p.paid?"Платный · ":"")+(ST.keys[p.id]?"Ключ сохранён · нажми, чтобы изменить":"Нужен ключ · нажми, чтобы настроить");
+  el(r,"button","tg"+(ST.on[p.id]?" on":""),null,function(){ST.on[p.id]=!ST.on[p.id];sv()}).setAttribute("aria-label","Включить")});
+ if(!AP().length)el(L,"div","hint","Пока пусто. В меню с глобусом найди сайт и нажми «+ В сервисы».");
+ var n=act().length;$("svn").textContent="Включено: "+n+(n<2?" (нужно минимум 2)":"");
+ $("kin").placeholder=pcur().id?"Новый ключ для "+pcur().n:"Сначала добавь сервис";
+ $("khint").textContent="Ключ хранится только на этом устройстве.";
+ $("svcb").textContent=(act().length?pcur().n.split(" ")[0]:"Сервисы")+" ▾";syncPill()}
+function syncPill(){var p=pcur();if(p.id&&p.model)$("mname").textContent=p.model.length>20?p.model.slice(0,19)+"…":p.model}
+function place(){var b=$("svcb").getBoundingClientRect(),s=$("sv"),w=Math.min(340,innerWidth-24);s.style.width=w+"px";var left=Math.max(12,Math.min(b.left,innerWidth-w-12));s.style.left=left+"px";s.style.bottom=(innerHeight-b.top+10)+"px";s.style.maxHeight=Math.max(200,b.top-30)+"px";s.style.transformOrigin=(b.left+b.width/2-left)+"px 100%"}
+function openSvc(m){drawSvc();place();$("sv").classList.add("show");$("ov2").classList.add("show");if(m)$("khint").textContent=m}
+function closeSvc(){$("sv").classList.remove("show");$("ov2").classList.remove("show")}
+function prefill(s){sToggle(false);editId=null;fillForm(null);$("cn").value=s.d;$("cu").value=s.e||("https://"+s.d+"/v1/chat/completions");$("cm").value=s.m||"";openSvc(s.m?"API найден. Проверь данные, нажми «Добавить» и вставь ключ.":"API найден, но модель не определилась: впиши её из документации сайта.")}
+$("svcb").onclick=function(e){e.stopPropagation();toggle(false);sToggle(false);$("sv").classList.contains("show")?closeSvc():openSvc()};
+$("addp").onclick=function(){editId=null;fillForm(null)};
+$("cadd").onclick=function(){var n=$("cn").value.trim(),u=$("cu").value.trim(),m=$("cm").value.trim();
+ if(!n||u.indexOf("https://")!==0||!m){$("khint").textContent="Нужны название, адрес с https:// и модель.";return}
+ var p=AP().filter(function(z){return z.id===editId})[0];
+ if(p){p.n=n;p.url=u;p.model=m}else{var id="c"+Date.now();ST.custom=(ST.custom||[]).concat([{id:id,n:n,type:"openai",url:u,model:m,hint:"сайт сервиса, раздел API",custom:1}]);ST.cur=id;editId=id}
+ $("cf").classList.remove("show");sv();drawSites();$("khint").textContent=ST.keys[ST.cur]?"Сохранено.":"Сохранено. Теперь вставь ключ ниже."};
+$("cdel").onclick=function(){if(!editId)return;ST.custom=(ST.custom||[]).filter(function(z){return z.id!==editId});delete ST.keys[editId];delete ST.on[editId];if(ST.cur===editId)ST.cur=(ST.custom[0]||{}).id||"";editId=null;$("cf").classList.remove("show");sv();drawSites()};
+function fillForm(p){$("cn").value=p?p.n:"";$("cu").value=p?p.url:"";$("cm").value=p?p.model:"";$("ck").value="";$("ck").placeholder=p&&ST.keys[p.id]?"Ключ сохранён. Вставь новый, чтобы заменить":"Вставь API ключ сюда";$("cadd").textContent=p?"Сохранить":"Добавить";$("cdel").style.display=p?"block":"none";$("cf").classList.add("show")}
+$("cadd").onclick=function(){var n=$("cn").value.trim(),u=$("cu").value.trim(),m=$("cm").value.trim(),k=$("ck").value.trim();
+ if(!n||u.indexOf("https://")!==0||!m){$("khint").textContent="Нужны название, адрес с https:// и модель.";return}
+ var p=AP().filter(function(z){return z.id===editId})[0],tid;
+ if(p){p.n=n;p.url=u;p.model=m;tid=p.id}else{tid="c"+Date.now();ST.custom=(ST.custom||[]).concat([{id:tid,n:n,type:"openai",url:u,model:m,hint:"сайт сервиса, раздел API",custom:1}])}
+ ST.cur=tid;editId=tid;if(k){ST.keys[tid]=k;ST.on[tid]=true}
+ $("ck").value="";$("cf").classList.remove("show");sv();drawSites();$("khint").textContent=ST.keys[tid]?"Сохранено.":"Сохранено, но ключа ещё нет: открой сервис и вставь его."};
+function gcall(name,data){var base=API.replace(/\/$/,"");
+ function g2(p){return fetch(base+p+"/call/"+name,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({data:data})}).then(function(r){if(!r.ok)throw 0;return r.json()}).then(function(j){return fetch(base+p+"/call/"+name+"/"+j.event_id)}).then(function(r){return r.text()})}
+ return g2("/gradio_api").catch(function(){return g2("")}).then(function(t){var m=t.match(/event: complete\s+data: (.*)/);if(!m)throw new Error("Сервер не ответил");var x=JSON.parse(m[1]);x=Array.isArray(x)?x[0]:x;if(typeof x==="string"){try{x=JSON.parse(x)}catch(e){}}if(!x)throw new Error("Space не вернул ответ: обнови app.py и дождись перезапуска");return x})}
+function xj(url,key,body){
+ var direct=fetch(url,{method:body?"POST":"GET",headers:{"content-type":"application/json","authorization":"Bearer "+key},body:body||undefined}).then(function(r){return r.text().then(function(t){return {status:r.status,body:t}})});
+ return direct.catch(function(e){if(!API)throw e;return gcall("relay",[url,key,body||"",body?"POST":"GET"])}).then(function(r){var d;try{d=JSON.parse(r.body)}catch(e){d=null}
+  if(r.status<200||r.status>=300)throw new Error((d&&d.error&&(d.error.message||d.error))||("HTTP "+r.status+(r.body?" "+String(r.body).slice(0,80):"")));
+  if(!d)throw new Error("Ответ не JSON");return d})}
+function setMT(n){$("mt1").className="tab"+(n===1?" on":"");$("mt2").className="tab"+(n===2?" on":"");$("mopts").style.display=n===1?"":"none";$("avl").style.display=n===2?"":"none";if(n===2)loadAvl()}
+$("mt1").onclick=function(e){e.stopPropagation();setMT(1)};
+$("mt2").onclick=function(e){e.stopPropagation();setMT(2)};
+function loadAvl(){var L=$("avl");L.innerHTML="";var acts=act();
+ if(!acts.length){el(L,"div","hint","Нет включённых сервисов с ключом. Добавь их в «Сервисы».");return}
+ acts.forEach(function(p){var box=el(L,"div");var h=el(box,"div","hint",p.n+" · загрузка…");
+  xj(p.url.replace(/\/chat\/completions\/?$/,"")+"/models",ST.keys[p.id],null).then(function(d){
+   var ids=(d.data||[]).map(function(x){return x.id}).filter(Boolean);
+   h.textContent=p.n+" · моделей: "+ids.length;
+   ids.slice(0,80).forEach(function(id){var b=el(box,"button","opt"+(p.model===id&&ST.cur===p.id?" sel":""),null,function(e){e.stopPropagation();p.model=id;ST.cur=p.id;sv();$("mname").textContent=id.slice(0,22);toggle(false)});b.innerHTML="<span></span><i class='dot'></i>";b.firstChild.textContent=id})
+  }).catch(function(e){h.textContent=p.n+" · не удалось получить список: "+(e.message||e)})})}
+var FV={code:"",lang:"",name:"",mode:"code"};
+function toast(m){var t=$("toast");t.textContent=m;t.classList.add("show");clearTimeout(toast.t);toast.t=setTimeout(function(){t.classList.remove("show")},2000)}
+function cp2(t){var a=document.createElement("textarea");a.value=t;a.style.position="fixed";a.style.opacity="0";document.body.appendChild(a);a.select();try{document.execCommand("copy");toast("Скопировано")}catch(e){toast("Не удалось скопировать")}a.remove()}
+function copyTxt(t){if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(t).then(function(){toast("Скопировано")},function(){cp2(t)})}else cp2(t)}
+function dl(name){try{var b=new Blob([FV.code],{type:"text/plain;charset=utf-8"});var a=document.createElement("a");a.href=URL.createObjectURL(b);a.download=name;document.body.appendChild(a);a.click();setTimeout(function(){a.remove();URL.revokeObjectURL(a.href)},1500);toast("Скачивание начато")}catch(e){toast("Не удалось скачать, нажми «Копировать»")}}
+function drawFvm(){var M=$("fvmenu");M.innerHTML="";var pv=FV.lang==="html"||FV.lang==="svg";
+ function it(label,fn,on){var b=el(M,"button","fvi",label,function(e){e.stopPropagation();M.classList.remove("show");fn()});if(on){var k=document.createElement("span");k.textContent="✓";b.appendChild(k)}}
+ if(pv){it("Предпросмотр",function(){fvMode("prev")},FV.mode==="prev");it("Код",function(){fvMode("code")},FV.mode==="code");el(M,"div","fvs")}
+ it("Копировать",function(){copyTxt(FV.code)});it("Скачать",function(){dl(FV.name)});
+ if(FV.lang==="html"){el(M,"div","fvs");it("Сохранить как HTML",function(){dl(FV.name.replace(/\.[^.]+$/,"")+".html")})}}
+function fvMode(m){FV.mode=m;$("fvf").style.display=m==="prev"?"block":"none";$("fvc").style.display=m==="code"?"block":"none";if(m==="prev")$("fvf").srcdoc=FV.code;else{$("fvf").srcdoc="";$("fvc").textContent=FV.code}$("fvmenu").classList.remove("show");drawFvm()}
+function openFile(code,lang,name){FV.code=code;FV.lang=lang;FV.name=name;$("fvn").textContent=name;fvMode(lang==="html"||lang==="svg"?"prev":"code");$("fv").classList.add("show")}
+$("fvx").onclick=function(){$("fv").classList.remove("show");$("fvf").srcdoc=""};
+$("fvm").onclick=function(e){e.stopPropagation();$("fvmenu").classList.toggle("show")};
+$("fv").onclick=function(){$("fvmenu").classList.remove("show")};
+chat.addEventListener("click",function(e){var c=e.target.closest&&e.target.closest(".fcard");if(c)openFile(decodeURIComponent(c.getAttribute("data-c")),c.getAttribute("data-l"),c.getAttribute("data-n"))});
+function fname(lang,code,n){var ext={javascript:"js",python:"py",typescript:"ts",markdown:"md",bash:"sh",shell:"sh"}[lang]||lang||"txt";var t="";if(ext==="html"){var m=code.match(/<title>([^<]{1,40})<\/title>/i);if(m)t=m[1].trim()}return (t||("файл-"+n))+"."+ext}
+function card(w,lang,code,n){var nm=fname(lang,code,n),ex=nm.split(".").pop();var d=document.createElement("div");d.className="fcard";d.setAttribute("data-c",encodeURIComponent(code));d.setAttribute("data-l",ex);d.setAttribute("data-n",nm);d.innerHTML="<i class='fi'>&lt;/&gt;</i><div><span class='ft'></span><small></small></div>";d.querySelector(".ft").textContent=nm.replace(/\.[^.]+$/,"");d.querySelector("small").textContent="Код · "+ex.toUpperCase();w.appendChild(d)}
+function addT(w,t){t=t.trim();if(!t)return;var s=document.createElement("span");s.textContent=t;w.appendChild(s)}
+function body(w,txt){var re=/```([\w+-]*)[ \t]*\n([\s\S]*?)(```|$)/g,last=0,m,n=0;
+ while((m=re.exec(txt))){if(m.index>last)addT(w,txt.slice(last,m.index));n++;card(w,m[1]||"txt",m[2],n);last=re.lastIndex;if(!m[3])break}
+ if(last<txt.length)addT(w,txt.slice(last))}
+function fin(c,w,p,txt,bad){
+ w.innerHTML="";var b=document.createElement("b");b.textContent=p.n+(p.id==="anthropic"?" · "+models[cur][0]:" · "+(p.model||""));w.appendChild(b);
+ if(bad){var s=document.createElement("span");s.textContent=txt;w.appendChild(s);el(w,"button","retry","↻ Повторить",function(){w.innerHTML="<b></b><div class='typing'><span></span><span></span><span></span></div>";ask(c,w)})}
+ else{body(w,txt);c.msgs.push({cls:"ai",html:w.innerHTML,t:txt});saveSide()}}
+function ask(c,w){
+ var p=pcur();if(!(ST.on[p.id]&&ST.keys[p.id])){var a0=act();if(!a0.length){fin(c,w,p,"Нет включённых сервисов с ключом.",true);return}p=a0[0];ST.cur=p.id;sv()}
+ var model=p.id==="anthropic"?MODELID[cur]:p.model;
+ req(p,ST.keys[p.id],model,histOf(c)).then(function(txt){if(p.paid){p.paid=false;sv()}fin(c,w,p,txt||"(пустой ответ)",false)}).catch(function(e){var m=String(e.message||e);var pd=/402|insufficient|balance|quota|payment|credit|billing|top.?up|subscription|пополни|баланс|оплат/i.test(m);if(pd){p.paid=true;sv()}fin(c,w,p,(pd?"Похоже, сервис платный или закончился баланс. ":"")+"Ошибка: "+m+". Можно переключить сервис в «Сервисы» и нажать «Повторить».",true)})}
 drawSites();if(API)load();
+drawSvc();if(pcur().id&&pcur().model)$("mname").textContent=pcur().model.slice(0,22);
 paint();
 renderSide();show();
 </script>
