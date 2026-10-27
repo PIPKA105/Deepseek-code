@@ -120,6 +120,9 @@ a.opt{text-decoration:none;color:inherit}
 .grab{display:none}
 .svcb{margin-left:12px;margin-right:auto}
 .cf button.del{color:#e5484d}
+.keyrow{display:none}
+.cf label{font:12px system-ui,sans-serif;color:var(--mute);margin:4px 2px 0}
+.svh span{white-space:nowrap}
 #slist{max-height:55vh;overflow-y:auto}
 @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
 </style>
@@ -146,7 +149,7 @@ a.opt{text-decoration:none;color:inherit}
   <input type="file" id="file" multiple accept="image/*,video/*,.pdf,.txt,.doc,.docx" hidden>
 </div></div>
 <div id="ov2"></div>
-<div id="sv" class="sheet"><div class="grab"></div><div class="svh"><span>Сервисы с API</span><small id="svn"></small></div><div id="svl"></div><button class="addp" id="addp">+ Свой сервис с API</button><div class="cf" id="cf"><input id="cn" placeholder="Название сервиса"><input id="cu" placeholder="Адрес API: https://…/v1/chat/completions"><input id="cm" placeholder="Модель (id из документации)"><button id="cadd">Добавить</button><button id="cdel" class="del" style="display:none">Удалить сервис</button></div><div class="keyrow"><input id="kin" type="password" autocomplete="off" placeholder="API ключ"><button id="ksv">Сохранить</button></div><div class="khint" id="khint"></div></div>
+<div id="sv" class="sheet"><div class="grab"></div><div class="svh"><span>Сервисы с API</span><small id="svn"></small></div><div id="svl"></div><button class="addp" id="addp">+ Свой сервис с API</button><div class="cf" id="cf"><label>Название</label><input id="cn" placeholder="Название сервиса"><label>Адрес API</label><input id="cu" placeholder="Адрес API: https://…/v1/chat/completions"><label>Модель</label><input id="cm" placeholder="Модель (id из документации)"><label>API ключ</label><input id="ck" type="password" autocomplete="off" placeholder="Вставь API ключ сюда"><button id="cadd">Добавить</button><button id="cdel" class="del" style="display:none">Удалить сервис</button></div><div class="keyrow"><input id="kin" type="password" autocomplete="off" placeholder="API ключ"><button id="ksv">Сохранить</button></div><div class="khint" id="khint"></div></div>
 <script>
 var models=[["Fable 5.1","Самая мощная"],["Opus 5.5","Сложные задачи"],["Sonnet 5.5","Баланс скорости и ума"],["Haiku 5.5","Самая быстрая"]];
 var cur=0,files=[];
@@ -308,6 +311,13 @@ $("cadd").onclick=function(){var n=$("cn").value.trim(),u=$("cu").value.trim(),m
  if(p){p.n=n;p.url=u;p.model=m}else{var id="c"+Date.now();ST.custom=(ST.custom||[]).concat([{id:id,n:n,type:"openai",url:u,model:m,hint:"сайт сервиса, раздел API",custom:1}]);ST.cur=id;editId=id}
  $("cf").classList.remove("show");sv();drawSites();$("khint").textContent=ST.keys[ST.cur]?"Сохранено.":"Сохранено. Теперь вставь ключ ниже."};
 $("cdel").onclick=function(){if(!editId)return;ST.custom=(ST.custom||[]).filter(function(z){return z.id!==editId});delete ST.keys[editId];delete ST.on[editId];if(ST.cur===editId)ST.cur=(ST.custom[0]||{}).id||"";editId=null;$("cf").classList.remove("show");sv();drawSites()};
+function fillForm(p){$("cn").value=p?p.n:"";$("cu").value=p?p.url:"";$("cm").value=p?p.model:"";$("ck").value="";$("ck").placeholder=p&&ST.keys[p.id]?"Ключ сохранён. Вставь новый, чтобы заменить":"Вставь API ключ сюда";$("cadd").textContent=p?"Сохранить":"Добавить";$("cdel").style.display=p?"block":"none";$("cf").classList.add("show")}
+$("cadd").onclick=function(){var n=$("cn").value.trim(),u=$("cu").value.trim(),m=$("cm").value.trim(),k=$("ck").value.trim();
+ if(!n||u.indexOf("https://")!==0||!m){$("khint").textContent="Нужны название, адрес с https:// и модель.";return}
+ var p=AP().filter(function(z){return z.id===editId})[0],tid;
+ if(p){p.n=n;p.url=u;p.model=m;tid=p.id}else{tid="c"+Date.now();ST.custom=(ST.custom||[]).concat([{id:tid,n:n,type:"openai",url:u,model:m,hint:"сайт сервиса, раздел API",custom:1}])}
+ ST.cur=tid;editId=tid;if(k){ST.keys[tid]=k;ST.on[tid]=true}
+ $("ck").value="";$("cf").classList.remove("show");sv();drawSites();$("khint").textContent=ST.keys[tid]?"Сохранено.":"Сохранено, но ключа ещё нет: открой сервис и вставь его."};
 drawSites();if(API)load();
 drawSvc();
 paint();
