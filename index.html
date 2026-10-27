@@ -123,6 +123,8 @@ a.opt{text-decoration:none;color:inherit}
 .keyrow{display:none}
 .cf label{font:12px system-ui,sans-serif;color:var(--mute);margin:4px 2px 0}
 .svh span{white-space:nowrap}
+.mt{margin:6px 6px 4px}
+#avl{max-height:48vh;overflow-y:auto}
 #slist{max-height:55vh;overflow-y:auto}
 @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
 </style>
@@ -134,7 +136,7 @@ a.opt{text-decoration:none;color:inherit}
   <div class="menu sm" id="smenu"><div class="elab sh"><span>Сайты с бесплатными моделями</span><button class="ic rf" id="rf" aria-label="Обновить"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 12a8 8 0 1 1-2.3-5.7M20 4v5h-5"/></svg></button></div><div id="slist"></div></div>
   <button class="pill" id="pill" aria-haspopup="true"><span id="mname">Fable 5.1</span>
     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M6 9l6 6 6-6"/></svg></button>
-  <div class="menu" id="menu"><div id="mopts"></div><div class="eff"><div class="elab"><span>Усилие</span><b id="elv"></b></div><div class="hit" id="hit"><div class="trk" id="trk"><div class="fill" id="fill"></div><i class="tk" style="left:25%"></i><i class="tk" style="left:50%"></i><i class="tk" style="left:75%"></i><div class="thumb" id="thumb"></div></div></div></div></div>
+  <div class="menu" id="menu"><div class="tabs mt"><button id="mt1" class="tab on">Модели</button><button id="mt2" class="tab">Доступные</button></div><div id="mopts"></div><div id="avl" style="display:none"></div><div class="eff"><div class="elab"><span>Усилие</span><b id="elv"></b></div><div class="hit" id="hit"><div class="trk" id="trk"><div class="fill" id="fill"></div><i class="tk" style="left:25%"></i><i class="tk" style="left:50%"></i><i class="tk" style="left:75%"></i><div class="thumb" id="thumb"></div></div></div></div></div>
 </header>
 <aside id="side"><button class="item plus" id="nc">+ Новый чат</button><div class="tabs"><button id="tc" class="tab on">Чаты</button><button id="tp" class="tab">Проекты</button></div><div id="list"></div></aside><div id="ov"></div>
 <div id="chat"><div class="empty" id="empty">Привет! О чём поговорим?</div></div>
@@ -276,10 +278,10 @@ function chk(r){return r.json().then(function(d){if(!r.ok)throw new Error((d.err
 function req(p,key,model,hist){
  if(p.type==="anthropic")return fetch("https://api.anthropic.com/v1/messages",{method:"POST",headers:{"content-type":"application/json","x-api-key":key,"anthropic-version":"2023-06-01","anthropic-dangerous-direct-browser-access":"true"},body:JSON.stringify({model:model,max_tokens:2048,messages:hist})}).then(chk).then(function(d){return d.content.map(function(b){return b.text||""}).join("")});
  if(p.type==="gemini")return fetch("https://generativelanguage.googleapis.com/v1beta/models/"+model+":generateContent",{method:"POST",headers:{"content-type":"application/json","x-goog-api-key":key},body:JSON.stringify({contents:hist.map(function(m){return {role:m.role==="user"?"user":"model",parts:[{text:m.content}]}})})}).then(chk).then(function(d){return d.candidates[0].content.parts.map(function(x){return x.text||""}).join("")});
- return fetch(p.url,{method:"POST",headers:{"content-type":"application/json","authorization":"Bearer "+key},body:JSON.stringify({model:model,messages:hist})}).then(chk).then(function(d){return d.choices[0].message.content})}
+ return xj(p.url,key,JSON.stringify({model:model,messages:hist})).then(function(d){return d.choices[0].message.content})}
 function histOf(c){var h=[];c.msgs.forEach(function(m){if(!m.t)return;var r=m.cls==="me"?"user":"assistant";if(h.length&&h[h.length-1].role===r)h[h.length-1].content+="\n\n"+m.t;else h.push({role:r,content:m.t})});return h}
 function fin(c,w,p,txt,bad){
- w.innerHTML="";var b=document.createElement("b");b.textContent=p.n+(p.id==="anthropic"?" · "+models[cur][0]:"");w.appendChild(b);
+ w.innerHTML="";var b=document.createElement("b");b.textContent=p.n+(p.id==="anthropic"?" · "+models[cur][0]:" · "+(p.model||""));w.appendChild(b);
  var s=document.createElement("span");s.textContent=txt;w.appendChild(s);
  if(bad)el(w,"button","retry","↻ Повторить",function(){w.innerHTML="<b></b><div class='typing'><span></span><span></span><span></span></div>";ask(c,w)});
  else{c.msgs.push({cls:"ai",html:w.innerHTML,t:txt});saveSide()}}
@@ -318,8 +320,27 @@ $("cadd").onclick=function(){var n=$("cn").value.trim(),u=$("cu").value.trim(),m
  if(p){p.n=n;p.url=u;p.model=m;tid=p.id}else{tid="c"+Date.now();ST.custom=(ST.custom||[]).concat([{id:tid,n:n,type:"openai",url:u,model:m,hint:"сайт сервиса, раздел API",custom:1}])}
  ST.cur=tid;editId=tid;if(k){ST.keys[tid]=k;ST.on[tid]=true}
  $("ck").value="";$("cf").classList.remove("show");sv();drawSites();$("khint").textContent=ST.keys[tid]?"Сохранено.":"Сохранено, но ключа ещё нет: открой сервис и вставь его."};
+function gcall(name,data){var base=API.replace(/\/$/,"");
+ function g2(p){return fetch(base+p+"/call/"+name,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({data:data})}).then(function(r){if(!r.ok)throw 0;return r.json()}).then(function(j){return fetch(base+p+"/call/"+name+"/"+j.event_id)}).then(function(r){return r.text()})}
+ return g2("/gradio_api").catch(function(){return g2("")}).then(function(t){var m=t.match(/event: complete\s+data: (.*)/);if(!m)throw new Error("Сервер не ответил");return JSON.parse(m[1])[0]})}
+function xj(url,key,body){
+ var direct=fetch(url,{method:body?"POST":"GET",headers:{"content-type":"application/json","authorization":"Bearer "+key},body:body||undefined}).then(function(r){return r.text().then(function(t){return {status:r.status,body:t}})});
+ return direct.catch(function(e){if(!API)throw e;return gcall("relay",[url,key,body||"",body?"POST":"GET"])}).then(function(r){var d;try{d=JSON.parse(r.body)}catch(e){d=null}
+  if(r.status<200||r.status>=300)throw new Error((d&&d.error&&(d.error.message||d.error))||("HTTP "+r.status+(r.body?" "+String(r.body).slice(0,80):"")));
+  if(!d)throw new Error("Ответ не JSON");return d})}
+function setMT(n){$("mt1").className="tab"+(n===1?" on":"");$("mt2").className="tab"+(n===2?" on":"");$("mopts").style.display=n===1?"":"none";$("avl").style.display=n===2?"":"none";if(n===2)loadAvl()}
+$("mt1").onclick=function(e){e.stopPropagation();setMT(1)};
+$("mt2").onclick=function(e){e.stopPropagation();setMT(2)};
+function loadAvl(){var L=$("avl");L.innerHTML="";var acts=act();
+ if(!acts.length){el(L,"div","hint","Нет включённых сервисов с ключом. Добавь их в «Сервисы».");return}
+ acts.forEach(function(p){var box=el(L,"div");var h=el(box,"div","hint",p.n+" · загрузка…");
+  xj(p.url.replace(/\/chat\/completions\/?$/,"")+"/models",ST.keys[p.id],null).then(function(d){
+   var ids=(d.data||[]).map(function(x){return x.id}).filter(Boolean);
+   h.textContent=p.n+" · моделей: "+ids.length;
+   ids.slice(0,80).forEach(function(id){var b=el(box,"button","opt"+(p.model===id&&ST.cur===p.id?" sel":""),null,function(e){e.stopPropagation();p.model=id;ST.cur=p.id;sv();$("mname").textContent=id.slice(0,22);toggle(false)});b.innerHTML="<span></span><i class='dot'></i>";b.firstChild.textContent=id})
+  }).catch(function(e){h.textContent=p.n+" · не удалось получить список: "+(e.message||e)})})}
 drawSites();if(API)load();
-drawSvc();
+drawSvc();if(pcur().id&&pcur().model)$("mname").textContent=pcur().model.slice(0,22);
 paint();
 renderSide();show();
 </script>
