@@ -84,6 +84,7 @@ textarea{width:100%;border:0;outline:0;resize:none;background:none;color:inherit
 .rf.spin svg{animation:spin 1s linear infinite}
 @keyframes spin{to{transform:rotate(360deg)}}
 a.opt{text-decoration:none;color:inherit}
+#slist{max-height:55vh;overflow-y:auto}
 @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
 </style>
 </head>
@@ -184,8 +185,22 @@ function drawSites(msg){var L=$("slist");L.innerHTML="";sites.forEach(function(s
 $("gl").onclick=function(e){e.stopPropagation();toggle(false);sToggle(!smenu.classList.contains("show"))};
 pill.addEventListener("click",function(){sToggle(false)});
 document.addEventListener("click",function(e){if(!smenu.contains(e.target))sToggle(false)});
-$("rf").onclick=function(e){e.stopPropagation();var b=$("rf");b.classList.add("spin");setTimeout(function(){b.classList.remove("spin");drawSites("Поиск в реальном времени заработает после подключения бота.")},1200)};
-drawSites();
+var API=new URLSearchParams(location.search).get("api")||"";
+function fail(m){$("rf").classList.remove("spin");drawSites(m)}
+function load(){
+ var b=$("rf");b.classList.add("spin");
+ if(!API){fail("Не указан адрес сервера поиска (параметр ?api= в ссылке).");return}
+ var base=API.replace(/\/$/,"");
+ function call(p){return fetch(base+p+"/call/sites",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({data:[]})}).then(function(r){if(!r.ok)throw 0;return r.json()}).then(function(j){return fetch(base+p+"/call/sites/"+j.event_id)}).then(function(r){return r.text()})}
+ call("/gradio_api").catch(function(){return call("")}).then(function(t){
+  var m=t.match(/event: complete\s+data: (.*)/);var d=JSON.parse(m[1])[0];
+  if(!Array.isArray(d)){fail(d&&d.error?d.error:"Поиск не сработал.");return}
+  sites=[sites[0]].concat(d);$("rf").classList.remove("spin");
+  drawSites(d.length?"Результаты поиска не проверены. Не вводи пароли и данные карты.":"Ничего не найдено.");
+ }).catch(function(){fail("Сервер поиска не отвечает. Проверь, что Space запущен.")})
+}
+$("rf").onclick=function(e){e.stopPropagation();load()};
+drawSites();if(API)load();
 paint();
 renderSide();show();
 </script>
