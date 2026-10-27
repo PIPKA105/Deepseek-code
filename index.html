@@ -107,6 +107,13 @@ a.opt{text-decoration:none;color:inherit}
 .keyrow button{padding:0 16px;border-radius:12px;background:var(--accent);color:#fff;font:600 14px system-ui,sans-serif}
 .khint{color:var(--mute);font-size:12px;margin-top:6px;min-height:16px}
 .retry{display:block;margin-top:8px;padding:6px 12px;border-radius:999px;background:var(--bubble);font:13px system-ui,sans-serif}
+.addp{display:block;width:100%;text-align:left;margin-top:6px;padding:10px;border-radius:12px;color:var(--accent);font:600 14px system-ui,sans-serif}
+.cf{display:none;flex-direction:column;gap:6px;margin-top:4px}
+.cf.show{display:flex}
+.cf input{padding:11px;border-radius:12px;border:1px solid var(--line);background:var(--bg);color:inherit;font:14px system-ui,sans-serif;outline:0}
+.cf input:focus{border-color:var(--accent)}
+.cf button{padding:11px;border-radius:12px;background:var(--bubble);font:600 14px system-ui,sans-serif}
+.addsv{align-self:flex-start;margin:0 0 6px 12px;padding:6px 12px;border-radius:999px;background:var(--bubble);color:var(--accent);font:600 13px system-ui,sans-serif}
 #slist{max-height:55vh;overflow-y:auto}
 @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
 </style>
@@ -133,7 +140,7 @@ a.opt{text-decoration:none;color:inherit}
   <input type="file" id="file" multiple accept="image/*,video/*,.pdf,.txt,.doc,.docx" hidden>
 </div></div>
 <div id="ov2"></div>
-<div id="sv" class="sheet"><div class="grab"></div><div class="svh"><span>Сервисы с API</span><small id="svn"></small></div><div id="svl"></div><div class="keyrow"><input id="kin" type="password" autocomplete="off" placeholder="API ключ"><button id="ksv">Сохранить</button></div><div class="khint" id="khint"></div></div>
+<div id="sv" class="sheet"><div class="grab"></div><div class="svh"><span>Сервисы с API</span><small id="svn"></small></div><div id="svl"></div><button class="addp" id="addp">+ Свой сервис с API</button><div class="cf" id="cf"><input id="cn" placeholder="Название сервиса"><input id="cu" placeholder="Адрес API: https://…/v1/chat/completions"><input id="cm" placeholder="Модель (id из документации)"><button id="cadd">Добавить</button></div><div class="keyrow"><input id="kin" type="password" autocomplete="off" placeholder="API ключ"><button id="ksv">Сохранить</button></div><div class="khint" id="khint"></div></div>
 <script>
 var models=[["Fable 5.1","Самая мощная"],["Opus 5.5","Сложные задачи"],["Sonnet 5.5","Баланс скорости и ума"],["Haiku 5.5","Самая быстрая"]];
 var cur=0,files=[];
@@ -158,7 +165,7 @@ function esc(s){return s.replace(/[&<>]/g,function(c){return {"&":"&amp;","<":"&
 function add(cls,html){var d=document.createElement("div");d.className="msg "+cls;d.innerHTML=html;chat.appendChild(d);chat.scrollTo({top:chat.scrollHeight,behavior:"smooth"});return d}
 function go(){
   var t=inp.value.trim();if(!t&&!files.length)return;
-  if(act().length<2){openSvc("Подключи минимум 2 сервиса: включи их и вставь ключи.");return}
+  if(act().length<2){openSvc("Добавь минимум 2 сервиса из поиска сайтов (глобус) и вставь ключи.");return}
   if($("empty"))$("empty").remove();
   var a=files.map(function(n){return "<span class='att'>"+esc(n)+"</span>"}).join("");
   var c=ensure(t||files[0]);var mh=a+(a&&t?"<br>":"")+esc(t);c.msgs.push({cls:"me",html:mh,t:t+(files.length?" [файлы: "+files.join(", ")+"]":"")});add("me",mh);saveSide();
@@ -208,7 +215,7 @@ hit.onpointerup=up;hit.onpointercancel=up;
 var sites=[{n:"Claude.ai",d:"Официальный бесплатный план",u:"https://claude.ai"}];
 var smenu=$("smenu");
 function sToggle(s){smenu.classList.toggle("show",s)}
-function drawSites(msg){var L=$("slist");L.innerHTML="";sites.forEach(function(s){var a=el(L,"a","opt");a.href=s.u;a.target="_blank";a.rel="noopener";var sp=document.createElement("span");sp.textContent=s.n;var sm=document.createElement("small");sm.textContent=s.d;sp.appendChild(sm);a.appendChild(sp)});if(msg)el(L,"div","hint",msg)}
+function drawSites(msg){var L=$("slist");L.innerHTML="";sites.filter(function(s){return !hostUsed(s.d)}).forEach(function(s){var a=el(L,"a","opt");a.href=s.u;a.target="_blank";a.rel="noopener";var sp=document.createElement("span");sp.textContent=s.n;var sm=document.createElement("small");sm.textContent=s.d;sp.appendChild(sm);a.appendChild(sp);if(s.n!=="Claude.ai")el(L,"button","addsv","+ В сервисы",function(){prefill(s)})});if(msg)el(L,"div","hint",msg)}
 $("gl").onclick=function(e){e.stopPropagation();toggle(false);sToggle(!smenu.classList.contains("show"))};
 pill.addEventListener("click",function(){sToggle(false)});
 document.addEventListener("click",function(e){if(!smenu.contains(e.target))sToggle(false)});
@@ -223,7 +230,7 @@ function load(){
   var m=t.match(/event: complete\s+data: (.*)/);var d=JSON.parse(m[1])[0];
   if(!Array.isArray(d)){fail(d&&d.error?d.error:"Поиск не сработал.");return}
   sites=[sites[0]].concat(d.filter(function(x){return !/anthropic\.com|openrouter\.ai|groq\.com|openai\.com|ai\.google|aistudio\.google|googleapis/.test(x.d)}));$("rf").classList.remove("spin");
-  drawSites(d.length?"Результаты поиска не проверены. Не вводи пароли и данные карты.":"Ничего не найдено.");
+  drawSites(d.length?"Результаты не проверены, не вводи пароли и данные карты. Если у сайта есть API, нажми «+ В сервисы», он здесь исчезнет.":"Ничего не найдено.");
  }).catch(function(){fail("Сервер поиска не отвечает. Проверь, что Space запущен.")})
 }
 $("rf").onclick=function(e){e.stopPropagation();load()};
@@ -232,21 +239,30 @@ var MODELID=["claude-fable-5-1","claude-opus-5-5","claude-sonnet-5-5","claude-ha
 var ST={on:{},cur:"anthropic",keys:{}};
 try{var s0=JSON.parse(localStorage.getItem("cfs")||"{}");if(s0&&s0.keys){ST=s0;ST.on=ST.on||{}}}catch(e){}
 function sv(){try{localStorage.setItem("cfs",JSON.stringify(ST))}catch(e){}drawSvc()}
-function act(){return P.filter(function(p){return ST.on[p.id]&&ST.keys[p.id]})}
-function pcur(){return P.filter(function(p){return p.id===ST.cur})[0]||P[0]}
+function AP(){return ST.custom||[]}
+function act(){return AP().filter(function(p){return ST.on[p.id]&&ST.keys[p.id]})}
+function pcur(){return AP().filter(function(p){return p.id===ST.cur})[0]||{id:"",n:"Сервис",hint:"сайт сервиса, раздел API"}}
 function drawSvc(){var L=$("svl");L.innerHTML="";
- P.forEach(function(p){var r=el(L,"div","prow"+(p.id===ST.cur?" cur":""));
+ AP().forEach(function(p){var r=el(L,"div","prow"+(p.id===ST.cur?" cur":""));
   var m=el(r,"button","nm",null,function(){ST.cur=p.id;$("kin").value="";sv()});
   m.innerHTML="<span></span><small></small>";m.firstChild.textContent=p.n;m.lastChild.textContent=ST.keys[p.id]?"Ключ сохранён":"Нужен ключ";
-  var t=el(r,"button","tg"+(ST.on[p.id]?" on":""),null,function(){ST.on[p.id]=!ST.on[p.id];sv()});t.setAttribute("aria-label","Включить")});
- var n=act().length;$("svn").textContent="Включено: "+n+(n<2?" (нужно минимум 2)":"");
+  if(p.custom)el(r,"button","x","×",function(){ST.custom=ST.custom.filter(function(z){return z.id!==p.id});delete ST.keys[p.id];delete ST.on[p.id];if(ST.cur===p.id)ST.cur="anthropic";sv();drawSites()});var t=el(r,"button","tg"+(ST.on[p.id]?" on":""),null,function(){ST.on[p.id]=!ST.on[p.id];sv()});t.setAttribute("aria-label","Включить")});
+ if(!AP().length)el(L,"div","hint","Пока пусто. В меню с глобусом найди сайт и нажми «+ В сервисы».");var n=act().length;$("svn").textContent="Включено: "+n+(n<2?" (нужно минимум 2)":"");
  $("kin").placeholder="API ключ для "+pcur().n;$("khint").textContent="Где взять: "+pcur().hint+". Ключ хранится только на этом устройстве.";
  $("svcb").textContent=(act().length?pcur().n.split(" ")[0]:"Сервисы")+" ▾"}
 function openSvc(m){$("sv").classList.add("show");$("ov2").classList.add("show");drawSvc();if(m)$("khint").textContent=m}
 function closeSvc(){$("sv").classList.remove("show");$("ov2").classList.remove("show")}
 $("svcb").onclick=function(e){e.stopPropagation();toggle(false);sToggle(false);openSvc()};
 $("ov2").onclick=closeSvc;
-$("ksv").onclick=function(){var v=$("kin").value.trim();if(!v){$("khint").textContent="Вставь ключ в строку.";return}ST.keys[ST.cur]=v;ST.on[ST.cur]=true;$("kin").value="";sv()};
+$("ksv").onclick=function(){var v=$("kin").value.trim();if(!pcur().id){$("khint").textContent="Сначала добавь сервис из поиска сайтов.";return}if(!v){$("khint").textContent="Вставь ключ в строку.";return}ST.keys[ST.cur]=v;ST.on[ST.cur]=true;$("kin").value="";sv()};
+function prefill(s){sToggle(false);$("cn").value=s.d;$("cu").value="https://"+s.d+"/v1/chat/completions";$("cm").value="";$("cf").classList.add("show");openSvc("Проверь адрес API и модель в документации сайта (раздел API), потом нажми «Добавить».")}
+function hostUsed(h){return !!h&&(ST.custom||[]).some(function(c){try{return new URL(c.url).hostname.indexOf(h)>-1}catch(e){return false}})}
+$("addp").onclick=function(){$("cf").classList.toggle("show")};
+$("cadd").onclick=function(){var n=$("cn").value.trim(),u=$("cu").value.trim(),m=$("cm").value.trim();
+ if(!n||u.indexOf("https://")!==0||!m){$("khint").textContent="Нужны название, адрес с https:// и модель.";return}
+ var id="c"+Date.now();ST.custom=(ST.custom||[]).concat([{id:id,n:n,type:"openai",url:u,model:m,hint:"сайт сервиса, раздел API",custom:1}]);ST.cur=id;
+ $("cn").value="";$("cu").value="";$("cm").value="";$("cf").classList.remove("show");sv();drawSites();
+ $("khint").textContent="Добавлено. Теперь вставь ключ и нажми «Сохранить»."};
 function chk(r){return r.json().then(function(d){if(!r.ok)throw new Error((d.error&&(d.error.message||d.error))||("HTTP "+r.status));return d})}
 function req(p,key,model,hist){
  if(p.type==="anthropic")return fetch("https://api.anthropic.com/v1/messages",{method:"POST",headers:{"content-type":"application/json","x-api-key":key,"anthropic-version":"2023-06-01","anthropic-dangerous-direct-browser-access":"true"},body:JSON.stringify({model:model,max_tokens:2048,messages:hist})}).then(chk).then(function(d){return d.content.map(function(b){return b.text||""}).join("")});
