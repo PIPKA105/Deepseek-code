@@ -322,7 +322,7 @@ $("cadd").onclick=function(){var n=$("cn").value.trim(),u=$("cu").value.trim(),m
  $("ck").value="";$("cf").classList.remove("show");sv();drawSites();$("khint").textContent=ST.keys[tid]?"Сохранено.":"Сохранено, но ключа ещё нет: открой сервис и вставь его."};
 function gcall(name,data){var base=API.replace(/\/$/,"");
  function g2(p){return fetch(base+p+"/call/"+name,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({data:data})}).then(function(r){if(!r.ok)throw 0;return r.json()}).then(function(j){return fetch(base+p+"/call/"+name+"/"+j.event_id)}).then(function(r){return r.text()})}
- return g2("/gradio_api").catch(function(){return g2("")}).then(function(t){var m=t.match(/event: complete\s+data: (.*)/);if(!m)throw new Error("Сервер не ответил");return JSON.parse(m[1])[0]})}
+ return g2("/gradio_api").catch(function(){return g2("")}).then(function(t){var m=t.match(/event: complete\s+data: (.*)/);if(!m)throw new Error("Сервер не ответил");var x=JSON.parse(m[1]);x=Array.isArray(x)?x[0]:x;if(typeof x==="string"){try{x=JSON.parse(x)}catch(e){}}if(!x)throw new Error("Space не вернул ответ: обнови app.py и дождись перезапуска");return x})}
 function xj(url,key,body){
  var direct=fetch(url,{method:body?"POST":"GET",headers:{"content-type":"application/json","authorization":"Bearer "+key},body:body||undefined}).then(function(r){return r.text().then(function(t){return {status:r.status,body:t}})});
  return direct.catch(function(e){if(!API)throw e;return gcall("relay",[url,key,body||"",body?"POST":"GET"])}).then(function(r){var d;try{d=JSON.parse(r.body)}catch(e){d=null}
