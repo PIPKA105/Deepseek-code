@@ -162,6 +162,8 @@ a.opt{text-decoration:none;color:inherit}
 .rfl{text-align:center;color:var(--accent);font:600 15px system-ui,sans-serif;width:100%}
 .item.sprof{display:flex;align-items:center;gap:10px;border-top:1px solid var(--line);border-radius:10px}
 .spn{flex:1;overflow:hidden;text-overflow:ellipsis}
+.scard .rfl{display:block;width:100%;padding:10px 0;margin-top:2px;text-align:center;color:var(--accent);font:600 15px system-ui,sans-serif}
+.scard textarea{width:100%;margin-top:8px;border-radius:10px;border:1px solid var(--line);background:var(--bg);color:inherit;padding:10px;font:13px ui-monospace,Menlo,monospace;outline:0;resize:none}
 #slist{max-height:55vh;overflow-y:auto}
 @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
 </style>
@@ -507,11 +509,43 @@ function drawSet(){var B=$("sbody");B.innerHTML="";var u=uInfo();
  if(all.length)el(B,"button","scard rfl","↻ Обновить",drawSet)}
 $("sprof").onclick=function(){closeSide();$("st").classList.add("show");drawSet()};
 $("stx").onclick=function(){$("st").classList.remove("show")};
+var CL=false,LASTC=0,PQ={},VER="сохр-2";
+function why(){if(!window.Telegram||!Telegram.WebApp)return "скрипт Telegram не загрузился";if(!Telegram.WebApp.initData)return "нет данных запуска (открыто не из бота)";if(!(Telegram.WebApp.isVersionAtLeast&&Telegram.WebApp.isVersionAtLeast("6.9")))return "старая версия Telegram";return ""}
+function hasData(s){return !!s&&(Object.keys(s.keys||{}).length>0||(s.custom||[]).length>0)}
+function cloudQ(name,get,fast){if(!TG)return;PQ[name]=get;clearTimeout(CT[name]);if(!CL)return;CT[name]=setTimeout(function(){flushOne(name)},fast?100:900)}
+function flushOne(name){clearTimeout(CT[name]);var g=PQ[name];if(!g)return;delete PQ[name];try{cloudSet(name,g())}catch(e){toast("Ошибка сохранения в Telegram")}}
+function flushAll(){Object.keys(PQ).forEach(flushOne)}
+document.addEventListener("visibilitychange",function(){if(document.hidden&&CL)flushAll()});window.addEventListener("pagehide",function(){if(CL)flushAll()});
+function cloudSet(name,obj){var cs=TG.CloudStorage,s=JSON.stringify(obj),n=Math.max(1,Math.ceil(s.length/3500)),i;
+ for(i=0;i<n;i++)cs.setItem(name+"_"+i,s.slice(i*3500,(i+1)*3500));
+ cs.setItem(name+"_n",String(n),function(e){if(e)toast("Не сохранилось в Telegram: "+e);else LASTC=Date.now()});
+ var old=CN[name]||0;if(old>n){var ks=[];for(i=n;i<old;i++)ks.push(name+"_"+i);cs.removeItems(ks)}CN[name]=n}
+function cloudLoad(){if(!TG){CL=true;return}var pending=2;
+ function done(){if(--pending===0){CL=true;flushAll()}}
+ cloudGet("cfs",function(d){if(d&&hasData(d)){ST=d;ST.on=ST.on||{};drawSvc();syncPill()}else if(hasData(ST))PQ.cfs=function(){return ST};done()});
+ cloudGet("cf",function(d){if(d&&d.c&&d.c.length){chats=d.c;projects=d.p||[];renderSide();show()}else if(chats.length||projects.length)PQ.cf=function(){return {c:slim(chats),p:projects}};done()})}
+function sv(){try{localStorage.setItem("cfs",JSON.stringify(ST))}catch(e){}cloudQ("cfs",function(){return ST},1);drawSvc()}
+function copyText(t){function fb(){var x=document.createElement("textarea");x.value=t;document.body.appendChild(x);x.select();try{document.execCommand("copy")}catch(e){}x.remove()}if(navigator.clipboard&&navigator.clipboard.writeText)navigator.clipboard.writeText(t).catch(fb);else fb()}
+function testStore(out){var v=String(Date.now()),res=[];
+ try{localStorage.setItem("cft",v);res.push("телефон: "+(localStorage.getItem("cft")===v?"✓":"✗"))}catch(e){res.push("телефон: ✗ "+e.message)}
+ out.textContent="Проверяю…";
+ if(!TG){out.textContent=res.join(" · ")+" · облако: ✗ "+why();return}
+ TG.CloudStorage.setItem("cft",v,function(e){if(e){out.textContent=res.join(" · ")+" · облако: ✗ запись: "+e;return}
+  TG.CloudStorage.getItem("cft",function(e2,x){out.textContent=res.join(" · ")+" · облако: "+(!e2&&x===v?"✓":"✗ чтение: "+(e2||"не совпало"))})})}
+function drawStore(B){var c=el(B,"div","scard");el(c,"div",null,"Хранилище").style.fontWeight="600";
+ el(c,"small",null,"Версия страницы: "+VER);
+ el(c,"small",null,"Telegram Cloud: "+(TG?"подключено"+(LASTC?" · сохранено "+new Date(LASTC).toLocaleTimeString("ru-RU",{hour:"2-digit",minute:"2-digit"}):""):"не работает: "+why()));
+ var r=el(c,"small",null,"Нажми «Проверить», чтобы увидеть, куда реально пишется");
+ el(c,"button","rfl","Проверить сохранение",function(){testStore(r)});
+ el(c,"button","rfl","Копировать резервную копию",function(){copyText(JSON.stringify({ST:ST,c:slim(chats),p:projects}));toast("Копия скопирована. Сохрани её в «Избранное»")});
+ var ta=el(c,"textarea");ta.placeholder="Вставь сюда резервную копию";ta.rows=3;
+ el(c,"button","rfl","Восстановить из копии",function(){try{var o=JSON.parse(ta.value);if(o.ST&&o.ST.keys){ST=o.ST;ST.on=ST.on||{}}if(o.c){chats=o.c;projects=o.p||[]}sv();saveSide();show();toast("Восстановлено");drawSet()}catch(e){toast("Копия не распознана")}})}
+var _ds0=drawSet;drawSet=function(){_ds0();drawStore($("sbody"))};
 drawSites();if(API)load();
 drawSvc();if(pcur().id&&pcur().model)$("mname").textContent=pcur().model.slice(0,22);
 paint();
 renderSide();show();
-sidebarProf();if(TG){try{TG.ready();TG.expand()}catch(e){}cloudLoad()}
+sidebarProf();try{if(TG){TG.ready();TG.expand()}}catch(e){}cloudLoad();setTimeout(function(){if(!CL){CL=true;flushAll()}},4000)
 </script>
 </body>
 </html>
