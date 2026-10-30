@@ -4,6 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Claude Free</title>
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
 <style>
 :root{--bg:#faf9f5;--surface:#fff;--ink:#1f1e1d;--mute:#73726c;--line:#e8e6dc;--accent:#d97757;--bubble:#f0eee6;color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
 @media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#262624;--surface:#30302e;--ink:#f5f4ee;--mute:#a3a29a;--line:#44433f;--bubble:#3a3936;color-scheme:dark}}
@@ -144,6 +145,8 @@ a.opt{text-decoration:none;color:inherit}
 .fvs{height:1px;background:var(--line);margin:4px 6px}
 #toast{position:fixed;left:50%;bottom:90px;transform:translateX(-50%) translateY(20px);background:var(--ink);color:var(--bg);padding:10px 16px;border-radius:999px;font:14px system-ui,sans-serif;opacity:0;pointer-events:none;transition:.25s;z-index:70}
 #toast.show{opacity:1;transform:translateX(-50%)}
+.stat{display:flex;align-items:center;gap:8px;margin-top:6px;color:var(--mute);font:14px system-ui,sans-serif}
+.sp{width:14px;height:14px;border-radius:50%;border:2px solid var(--line);border-top-color:var(--accent);animation:spin .8s linear infinite;flex:none}
 #slist{max-height:55vh;overflow-y:auto}
 @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
 </style>
@@ -347,7 +350,7 @@ function gcall(name,data){var base=API.replace(/\/$/,"");
 function xj(url,key,body){
  var direct=fetch(url,{method:body?"POST":"GET",headers:{"content-type":"application/json","authorization":"Bearer "+key},body:body||undefined}).then(function(r){return r.text().then(function(t){return {status:r.status,body:t}})});
  return direct.catch(function(e){if(!API)throw e;return gcall("relay",[url,key,body||"",body?"POST":"GET"])}).then(function(r){var d;try{d=JSON.parse(r.body)}catch(e){d=null}
-  if(r.status<200||r.status>=300)throw new Error((d&&d.error&&(d.error.message||d.error))||("HTTP "+r.status+(r.body?" "+String(r.body).slice(0,80):"")));
+  if(r.status<200||r.status>=300)throw mkErr(r.status,(d&&d.error&&(d.error.message||d.error))||("HTTP "+r.status+(r.body?" "+String(r.body).slice(0,80):"")));
   if(!d)throw new Error("Ответ не JSON");return d})}
 function setMT(n){$("mt1").className="tab"+(n===1?" on":"");$("mt2").className="tab"+(n===2?" on":"");$("mopts").style.display=n===1?"":"none";$("avl").style.display=n===2?"":"none";if(n===2)loadAvl()}
 $("mt1").onclick=function(e){e.stopPropagation();setMT(1)};
@@ -390,10 +393,68 @@ function ask(c,w){
  var p=pcur();if(!(ST.on[p.id]&&ST.keys[p.id])){var a0=act();if(!a0.length){fin(c,w,p,"Нет включённых сервисов с ключом.",true);return}p=a0[0];ST.cur=p.id;sv()}
  var model=p.id==="anthropic"?MODELID[cur]:p.model;
  req(p,ST.keys[p.id],model,histOf(c)).then(function(txt){if(p.paid){p.paid=false;sv()}fin(c,w,p,txt||"(пустой ответ)",false)}).catch(function(e){var m=String(e.message||e);var pd=/402|insufficient|balance|quota|payment|credit|billing|top.?up|subscription|пополни|баланс|оплат/i.test(m);if(pd){p.paid=true;sv()}fin(c,w,p,(pd?"Похоже, сервис платный или закончился баланс. ":"")+"Ошибка: "+m+". Можно переключить сервис в «Сервисы» и нажать «Повторить».",true)})}
+var TG=(window.Telegram&&Telegram.WebApp&&Telegram.WebApp.initData&&Telegram.WebApp.isVersionAtLeast&&Telegram.WebApp.isVersionAtLeast("6.9"))?Telegram.WebApp:null,CT={},CN={};
+function labOf(h){var d=document.createElement("div");d.innerHTML=h||"";var b=d.querySelector("b");return b?b.textContent:""}
+function slim(cs){return cs.map(function(c){return {id:c.id,title:c.title,project:c.project,msgs:c.msgs.map(function(m){return m.cls==="ai"&&m.t?{cls:"ai",t:m.t,lab:m.lab||labOf(m.html)}:m})}})}
+function cloudQ(name,get){if(!TG)return;clearTimeout(CT[name]);CT[name]=setTimeout(function(){cloudSet(name,get())},900)}
+function cloudSet(name,obj){var cs=TG.CloudStorage,s=JSON.stringify(obj),n=Math.max(1,Math.ceil(s.length/3500)),i;
+ for(i=0;i<n;i++)cs.setItem(name+"_"+i,s.slice(i*3500,(i+1)*3500));
+ cs.setItem(name+"_n",String(n),function(e){if(e)toast("Не сохранилось в Telegram")});
+ var old=CN[name]||0;if(old>n){var ks=[];for(i=n;i<old;i++)ks.push(name+"_"+i);cs.removeItems(ks)}CN[name]=n}
+function cloudGet(name,cb){var cs=TG.CloudStorage;cs.getItem(name+"_n",function(e,v){var n=parseInt(v||"0",10);if(e||!n){cb(null);return}CN[name]=n;var ks=[],i;for(i=0;i<n;i++)ks.push(name+"_"+i);cs.getItems(ks,function(e2,vals){if(e2||!vals){cb(null);return}var s="";for(i=0;i<n;i++)s+=vals[name+"_"+i]||"";try{cb(JSON.parse(s))}catch(x){cb(null)}})})}
+function cloudLoad(){if(!TG)return;
+ cloudGet("cfs",function(d){if(d&&d.keys){ST=d;ST.on=ST.on||{};drawSvc();syncPill()}else if(Object.keys(ST.keys||{}).length||(ST.custom||[]).length)cloudQ("cfs",function(){return ST})});
+ cloudGet("cf",function(d){if(d&&d.c){chats=d.c;projects=d.p||[];renderSide();show()}else if(chats.length)cloudQ("cf",function(){return {c:slim(chats),p:projects}})})}
+function sv(){try{localStorage.setItem("cfs",JSON.stringify(ST))}catch(e){}cloudQ("cfs",function(){return ST});drawSvc()}
+function saveSide(){try{localStorage.setItem("cf",JSON.stringify({c:chats,p:projects}))}catch(e){}cloudQ("cf",function(){return {c:slim(chats),p:projects}});renderSide()}
+function show(){chat.innerHTML="";var c=cur_();
+ if(!c||!c.msgs.length){chat.innerHTML="<div class='empty' id='empty'>"+(pend?"Новый чат в проекте":"Привет! О чём поговорим?")+"</div>";return}
+ c.msgs.forEach(function(m){if(m.cls==="ai"&&m.t&&!m.html){var w=add("ai","<b></b>");w.firstChild.textContent=m.lab||"";body(w,m.t)}else add(m.cls,m.html)})}
+function mkErr(s,m){var e=new Error(m);e.status=s;return e}
+function tmo(pr,ms,msg){return new Promise(function(res,rej){var t=setTimeout(function(){rej(new Error(msg))},ms);pr.then(function(v){clearTimeout(t);res(v)},function(e){clearTimeout(t);rej(e)})})}
+function parseFull(t){try{var d=JSON.parse(t);return d.choices[0].message.content||""}catch(e){return ""}}
+function streamChat(p,key,model,hist,signal,cb){
+ return fetch(p.url,{method:"POST",signal:signal,headers:{"content-type":"application/json","authorization":"Bearer "+key},body:JSON.stringify({model:model,messages:hist,stream:true})}).then(function(r){
+  if(!r.ok)return r.text().then(function(t){var d;try{d=JSON.parse(t)}catch(e){}throw mkErr(r.status,(d&&d.error&&(d.error.message||d.error))||("HTTP "+r.status+" "+String(t).slice(0,80)))});
+  cb("think","");
+  if(!r.body||!r.body.getReader)return r.text().then(parseFull);
+  var rd=r.body.getReader(),dec=new TextDecoder(),buf="",full="",raw="";
+  function pump(){return rd.read().then(function(x){
+   if(x.done){if(!full&&raw)full=parseFull(raw);return full}
+   var s=dec.decode(x.value,{stream:true});raw+=s;buf+=s;var ls=buf.split("\n");buf=ls.pop();
+   var thinking=false,changed=false;
+   ls.forEach(function(l){l=l.trim();if(l.indexOf("data:")!==0)return;var j=l.slice(5).trim();if(j==="[DONE]")return;try{var o=JSON.parse(j),dt=o.choices&&o.choices[0]&&o.choices[0].delta;if(dt){if(dt.content){full+=dt.content;changed=true}else if(dt.reasoning_content||dt.reasoning)thinking=true}}catch(e){}});
+   if(changed)cb("write",full);else if(thinking)cb("think","");
+   return pump()})}
+  return pump()})}
+function renderLive(w,lab,txt,mode){
+ w.innerHTML="";var b=document.createElement("b");b.textContent=lab;w.appendChild(b);
+ var vis=txt,status=mode==="send"?"Отправка…":mode==="think"?"Думает…":"Пишет ответ…";
+ if((txt.match(/```/g)||[]).length%2===1){var i=txt.lastIndexOf("```");vis=txt.slice(0,i);var op=txt.slice(i+3),nl=op.indexOf("\n");var lang=(nl<0?op:op.slice(0,nl)).trim().split(/\s+/)[0]||"txt";var code=nl<0?"":op.slice(nl+1);var n=(vis.match(/```/g)||[]).length/2+1;status="Создаёт файл "+fname(lang,code,n)+"… ("+(code.length/1000).toFixed(1)+" КБ)"}
+ if(vis)body(w,vis);
+ var s=document.createElement("div");s.className="stat";s.innerHTML="<i class='sp'></i><span></span>";s.lastChild.textContent=status;w.appendChild(s);
+ if(chat.scrollHeight-chat.scrollTop-chat.clientHeight<200)chat.scrollTop=chat.scrollHeight}
+function labFor(p){return p.n+(p.id==="anthropic"?" · "+models[cur][0]:" · "+(p.model||""))}
+function ask(c,w){
+ var p=pcur();if(!(ST.on[p.id]&&ST.keys[p.id])){var a0=act();if(!a0.length){fin(c,w,p,"Нет включённых сервисов с ключом.",true);return}p=a0[0];ST.cur=p.id;sv()}
+ var model=p.id==="anthropic"?MODELID[cur]:p.model,lab=labFor(p),hist=histOf(c),key=ST.keys[p.id];
+ renderLive(w,lab,"","send");
+ function bad(e){var m=String(e&&e.message||e);var pd=/402|insufficient|balance|quota|payment|credit|billing|top.?up|subscription|пополни|баланс|оплат/i.test(m);if(pd){p.paid=true;sv()}fin(c,w,p,(pd?"Похоже, сервис платный или закончился баланс. ":"")+"Ошибка: "+m+". Можно переключить сервис в «Сервисы» и нажать «Повторить».",true)}
+ function good(txt){if(p.paid){p.paid=false;sv()}fin(c,w,p,txt||"(пустой ответ)",false)}
+ if(p.type!=="openai"){req(p,key,model,hist).then(good,bad);return}
+ var ac=new AbortController(),idle,lastT=0;
+ function bump(){clearTimeout(idle);idle=setTimeout(function(){ac.abort()},60000)}
+ function live(mode,txt){bump();var t=Date.now();if(mode==="write"&&t-lastT<120)return;lastT=t;renderLive(w,lab,txt||"",mode)}
+ bump();
+ streamChat(p,key,model,hist,ac.signal,live).then(function(t){clearTimeout(idle);good(t)},function(e){clearTimeout(idle);
+  if(e&&e.status)return bad(e);
+  renderLive(w,lab,"","think");
+  tmo(xj(p.url,key,JSON.stringify({model:model,messages:hist})).then(function(d){return d.choices[0].message.content}),90000,"Сервис не ответил за 90 секунд").then(good,bad)})}
 drawSites();if(API)load();
 drawSvc();if(pcur().id&&pcur().model)$("mname").textContent=pcur().model.slice(0,22);
 paint();
 renderSide();show();
+if(TG){try{TG.ready();TG.expand()}catch(e){}cloudLoad()}
 </script>
 </body>
 </html>
