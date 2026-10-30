@@ -147,6 +147,21 @@ a.opt{text-decoration:none;color:inherit}
 #toast.show{opacity:1;transform:translateX(-50%)}
 .stat{display:flex;align-items:center;gap:8px;margin-top:6px;color:var(--mute);font:14px system-ui,sans-serif}
 .sp{width:14px;height:14px;border-radius:50%;border:2px solid var(--line);border-top-color:var(--accent);animation:spin .8s linear infinite;flex:none}
+.spage{position:fixed;inset:0;background:var(--bg);z-index:42;display:flex;flex-direction:column;transform:translateY(100%);opacity:0;pointer-events:none;transition:transform .32s cubic-bezier(.2,.9,.3,1),opacity .2s;padding-top:env(safe-area-inset-top,0px)}
+.spage.show{transform:none;opacity:1;pointer-events:auto}
+.sbody{flex:1;overflow:auto;padding:14px 14px calc(20px + env(safe-area-inset-bottom,0px));font-family:system-ui,sans-serif;display:flex;flex-direction:column;gap:12px}
+.scard{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:14px;animation:pop .3s}
+.scard small{display:block;color:var(--mute);font-size:13px;margin-top:3px}
+.prof{display:flex;align-items:center;gap:12px}
+.ava{width:52px;height:52px;border-radius:50%;background:var(--accent);color:#fff;display:grid;place-items:center;font:600 20px system-ui,sans-serif;overflow:hidden;flex:none}
+.ava.sm{width:32px;height:32px;font-size:14px}
+.stitle{font:600 12px system-ui,sans-serif;color:var(--mute);text-transform:uppercase;letter-spacing:.05em;margin:6px 2px 0}
+.bar{height:10px;border-radius:5px;background:var(--line);overflow:hidden;margin:10px 0 6px}
+.bar i{display:block;height:100%;width:0;border-radius:5px;background:var(--accent);transition:width .7s cubic-bezier(.2,.9,.3,1)}
+.bar i.hot{background:#e5484d}
+.rfl{text-align:center;color:var(--accent);font:600 15px system-ui,sans-serif;width:100%}
+.item.sprof{display:flex;align-items:center;gap:10px;border-top:1px solid var(--line);border-radius:10px}
+.spn{flex:1;overflow:hidden;text-overflow:ellipsis}
 #slist{max-height:55vh;overflow-y:auto}
 @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
 </style>
@@ -160,7 +175,7 @@ a.opt{text-decoration:none;color:inherit}
     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M6 9l6 6 6-6"/></svg></button>
   <div class="menu" id="menu"><div class="tabs mt"><button id="mt1" class="tab on">Модели</button><button id="mt2" class="tab">Доступные</button></div><div id="mopts"></div><div id="avl" style="display:none"></div><div class="eff"><div class="elab"><span>Усилие</span><b id="elv"></b></div><div class="hit" id="hit"><div class="trk" id="trk"><div class="fill" id="fill"></div><i class="tk" style="left:25%"></i><i class="tk" style="left:50%"></i><i class="tk" style="left:75%"></i><div class="thumb" id="thumb"></div></div></div></div></div>
 </header>
-<aside id="side"><button class="item plus" id="nc">+ Новый чат</button><div class="tabs"><button id="tc" class="tab on">Чаты</button><button id="tp" class="tab">Проекты</button></div><div id="list"></div></aside><div id="ov"></div>
+<aside id="side"><button class="item plus" id="nc">+ Новый чат</button><div class="tabs"><button id="tc" class="tab on">Чаты</button><button id="tp" class="tab">Проекты</button></div><div id="list"></div><button class="item sprof" id="sprof"><span class="ava sm" id="sava"></span><span class="spn" id="spn"></span><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/></svg></button></aside><div id="ov"></div>
 <div id="chat"><div class="empty" id="empty">Привет! О чём поговорим?</div></div>
 <div class="composer"><div class="box">
   <div id="chips"></div>
@@ -172,7 +187,8 @@ a.opt{text-decoration:none;color:inherit}
   </div>
   <input type="file" id="file" multiple accept="image/*,video/*,.pdf,.txt,.doc,.docx" hidden>
 </div></div>
-<div id="fv" class="fv"><div class="fvh"><button class="ic" id="fvx" aria-label="Закрыть"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 6l12 12M18 6L6 18"/></svg></button><span id="fvn"></span><button class="ic" id="fvm" aria-label="Меню"><svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="5" r="2"/><circle cx="12" cy="12" r="2"/><circle cx="12" cy="19" r="2"/></svg></button></div><div class="fvmenu" id="fvmenu"></div><iframe id="fvf" sandbox="allow-scripts"></iframe><pre id="fvc"></pre></div><div id="toast"></div>
+<div id="fv" class="fv"><div class="fvh"><button class="ic" id="fvx" aria-label="Закрыть"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 6l12 12M18 6L6 18"/></svg></button><span id="fvn"></span><button class="ic" id="fvm" aria-label="Меню"><svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="5" r="2"/><circle cx="12" cy="12" r="2"/><circle cx="12" cy="19" r="2"/></svg></button></div><div class="fvmenu" id="fvmenu"></div><iframe id="fvf" sandbox="allow-scripts"></iframe><pre id="fvc"></pre></div><div id="st" class="spage"><div class="vh"><button class="ic" id="stx" aria-label="Закрыть"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 6l12 12M18 6L6 18"/></svg></button><div class="vt">Настройки</div><span style="width:36px"></span></div><div class="sbody" id="sbody"></div></div>
+<div id="toast"></div>
 <div id="ov2"></div>
 <div id="sv" class="sheet"><div class="grab"></div><div class="svh"><span>Сервисы с API</span><small id="svn"></small></div><div id="svl"></div><button class="addp" id="addp">+ Свой сервис с API</button><div class="cf" id="cf"><label>Название</label><input id="cn" placeholder="Название сервиса"><label>Адрес API</label><input id="cu" placeholder="Адрес API: https://…/v1/chat/completions"><label>Модель</label><input id="cm" placeholder="Модель (id из документации)"><label>API ключ</label><input id="ck" type="password" autocomplete="off" placeholder="Вставь API ключ сюда"><button id="cadd">Добавить</button><button id="cdel" class="del" style="display:none">Удалить сервис</button></div><div class="keyrow"><input id="kin" type="password" autocomplete="off" placeholder="API ключ"><button id="ksv">Сохранить</button></div><div class="khint" id="khint"></div></div>
 <script>
@@ -436,11 +452,11 @@ function renderLive(w,lab,txt,mode){
  if(chat.scrollHeight-chat.scrollTop-chat.clientHeight<200)chat.scrollTop=chat.scrollHeight}
 function labFor(p){return p.n+(p.id==="anthropic"?" · "+models[cur][0]:" · "+(p.model||""))}
 function ask(c,w){
- var p=pcur();if(!(ST.on[p.id]&&ST.keys[p.id])){var a0=act();if(!a0.length){fin(c,w,p,"Нет включённых сервисов с ключом.",true);return}p=a0[0];ST.cur=p.id;sv()}
+ var p=pcur();if(!(ST.on[p.id]&&ST.keys[p.id])){var a0=act();if(!a0.length){fin(c,w,p,"Нет включённых сервисов с ключом.",true);return}fin(c,w,p,"Сервис «"+(p.n||"?")+"» выключен или без ключа. Включи его или выбери другой в «Сервисы» и нажми «Повторить».",true);return}
  var model=p.id==="anthropic"?MODELID[cur]:p.model,lab=labFor(p),hist=histOf(c),key=ST.keys[p.id];
  renderLive(w,lab,"","send");
  function bad(e){var m=String(e&&e.message||e);var pd=/402|insufficient|balance|quota|payment|credit|billing|top.?up|subscription|пополни|баланс|оплат/i.test(m);if(pd){p.paid=true;sv()}fin(c,w,p,(pd?"Похоже, сервис платный или закончился баланс. ":"")+"Ошибка: "+m+". Можно переключить сервис в «Сервисы» и нажать «Повторить».",true)}
- function good(txt){if(p.paid){p.paid=false;sv()}fin(c,w,p,txt||"(пустой ответ)",false)}
+ function good(txt){p.use=p.use||{r:0,c:0};p.use.r++;p.use.c+=JSON.stringify(hist).length+String(txt||"").length;if(p.paid)p.paid=false;sv();fin(c,w,p,txt||"(пустой ответ)",false)}
  if(p.type!=="openai"){req(p,key,model,hist).then(good,bad);return}
  var ac=new AbortController(),idle,lastT=0;
  function bump(){clearTimeout(idle);idle=setTimeout(function(){ac.abort()},60000)}
@@ -450,11 +466,52 @@ function ask(c,w){
   if(e&&e.status)return bad(e);
   renderLive(w,lab,"","think");
   tmo(xj(p.url,key,JSON.stringify({model:model,messages:hist})).then(function(d){return d.choices[0].message.content}),90000,"Сервис не ответил за 90 секунд").then(good,bad)})}
+var FAM=["fable","opus","sonnet","haiku"],MC={};
+function modelsOf(p){if(MC[p.id])return Promise.resolve(MC[p.id]);return xj(p.url.replace(/\/chat\/completions\/?$/,"")+"/models",ST.keys[p.id],null).then(function(d){var ids=(d.data||[]).map(function(x){return x.id}).filter(Boolean);MC[p.id]=ids;return ids})}
+function pickFamily(i){var p=pcur();$("mname").textContent=models[i][0];
+ if(!p.id||!ST.keys[p.id]){toast("Сначала добавь сервис с ключом");return}
+ modelsOf(p).then(function(ids){var hit=ids.filter(function(x){return x.toLowerCase().indexOf(FAM[i])>-1});
+  if(!hit.length){toast("У "+p.n+" нет модели "+models[i][0]);syncPill();return}
+  hit.sort();p.model=hit[hit.length-1];sv();syncPill();toast("Модель: "+p.model)}).catch(function(){toast("Не удалось получить список моделей");syncPill()})}
+function draw(){$("mopts").innerHTML="";models.forEach(function(m,i){var b=document.createElement("button");b.className="opt"+(i==cur?" sel":"");b.innerHTML="<span>"+m[0]+"<small>"+m[1]+"</small></span><i class='dot'></i>";b.onclick=function(e){e.stopPropagation();cur=i;pickFamily(i);draw();toggle(false)};$("mopts").appendChild(b)})}
+function syncPill(){var p=pcur();if(p.id&&p.model)$("mname").textContent=p.model.length>20?p.model.slice(0,19)+"…":p.model;var ok=p.id&&ST.on[p.id]&&ST.keys[p.id];$("svcb").textContent=(p.id?p.n.split(" ")[0]:"Сервисы")+(p.id&&!ok?" ⚠":"")+" ▾"}
+function uInfo(){var u=window.Telegram&&Telegram.WebApp&&Telegram.WebApp.initDataUnsafe&&Telegram.WebApp.initDataUnsafe.user;return u||null}
+function ini(u){return u?((u.first_name||"?")[0]+(u.last_name?u.last_name[0]:"")).toUpperCase():"G"}
+function uname(u){return u?(u.first_name||"")+(u.last_name?" "+u.last_name:""):"Гость"}
+function avatar(e2,u){e2.innerHTML="";if(u&&u.photo_url){var im=document.createElement("img");im.src=u.photo_url;im.style.cssText="width:100%;height:100%;object-fit:cover";im.onerror=function(){e2.textContent=ini(u)};e2.appendChild(im)}else e2.textContent=ini(u)}
+function sidebarProf(){var u=uInfo();avatar($("sava"),u);$("spn").textContent=uname(u)}
+function rs(x){var n=new Date(),y=n.getUTCFullYear(),mo=n.getUTCMonth(),d=n.getUTCDate();if(x==="daily")return new Date(Date.UTC(y,mo,d+1));if(x==="weekly")return new Date(Date.UTC(y,mo,d+((8-n.getUTCDay())%7||7)));if(x==="monthly")return new Date(Date.UTC(y,mo+1,1));return null}
+function fq(n){return "$"+(n/500000).toFixed(2)}
+function fdate(d){var ms=d-Date.now(),s=d.toLocaleString("ru-RU",{day:"numeric",month:"long",hour:"2-digit",minute:"2-digit"});if(ms<=0)return s;var h=Math.floor(ms/36e5),dd=Math.floor(h/24);return s+" (через "+(dd>0?dd+" дн. "+(h%24)+" ч":h>0?h+" ч "+Math.round(ms%36e5/6e4)+" мин":Math.max(1,Math.round(ms/6e4))+" мин")+")"}
+function limitOf(p){var key=ST.keys[p.id],o=new URL(p.url).origin;function g(path){return xj(o+path,key,null)}
+ return g("/api/v1/key").then(function(d){d=d.data||d;if(d.limit==null)throw 0;var use=d.usage||0;return {pct:use/d.limit*100,txt:"$"+use.toFixed(2)+" из $"+d.limit,reset:rs(d.limit_reset)}})
+ .catch(function(){return g("/api/usage/token").then(function(d){d=d.data||d;if(d.total_granted==null)throw 0;var ex=d.expires_at>0?new Date(d.expires_at*1000):null;if(d.unlimited_quota)return {pct:0,unl:1,reset:ex,rl:"Ключ действует до"};return {pct:d.total_granted?d.total_used/d.total_granted*100:0,txt:fq(d.total_used)+" из "+fq(d.total_granted),reset:ex,rl:"Ключ действует до"}})})
+ .catch(function(){return g("/v1/dashboard/billing/subscription").then(function(s){var lim=s.hard_limit_usd||s.system_hard_limit_usd;if(!lim)throw 0;var n=new Date(),a=new Date(n.getFullYear(),n.getMonth(),1).toISOString().slice(0,10),b=new Date(n.getTime()+864e5).toISOString().slice(0,10);return g("/v1/dashboard/billing/usage?start_date="+a+"&end_date="+b).then(function(u){var used=(u.total_usage||0)/100;return {pct:used/lim*100,txt:"$"+used.toFixed(2)+" из $"+lim,reset:s.access_until?new Date(s.access_until*1000):new Date(n.getFullYear(),n.getMonth()+1,1)}})})})
+ .catch(function(){return null})}
+function fillLim(box,p,L){box.innerHTML="";var use=p.use||{r:0,c:0};
+ if(L){var pct=Math.max(0,Math.min(100,L.pct||0));el(box,"div",null,L.unl?"Без лимита":"Использовано "+Math.round(pct)+"% · осталось "+Math.round(100-pct)+"%").style.fontWeight="600";
+  if(!L.unl){var bar=el(box,"div","bar"),i=el(bar,"i");if(pct>85)i.className="hot";setTimeout(function(){i.style.width=pct+"%"},30)}
+  if(L.txt)el(box,"small",null,L.txt);
+  el(box,"small",null,L.reset?(L.rl||"Полностью восстановится")+": "+fdate(L.reset):"Время восстановления сервис не сообщает")}
+ else el(box,"small",null,"Этот сервис не сообщает лимиты через API.");
+ el(box,"small",null,"Из этого чата отправлено: "+use.r+" запр., ~"+Math.round(use.c/3)+" токенов")}
+function drawSet(){var B=$("sbody");B.innerHTML="";var u=uInfo();
+ var c=el(B,"div","scard prof");avatar(el(c,"div","ava"),u);var t=el(c,"div");el(t,"div",null,uname(u)).style.fontWeight="600";
+ el(t,"small",null,u?((u.username?"@"+u.username+" · ":"")+(u.is_premium?"Premium · ":"")+"ID "+u.id):"Открой чат из бота в Telegram, и здесь появится профиль");
+ el(B,"div","stitle","Лимиты сервисов");
+ var all=AP();if(!all.length)el(B,"div","hint","Сервисов пока нет. Добавь их через глобус или «Сервисы».");
+ all.forEach(function(p){var card=el(B,"div","scard");el(card,"div",null,p.n+(p.paid?" · платный":"")).style.fontWeight="600";el(card,"small",null,p.model||"модель не выбрана");var box=el(card,"div");
+  if(!ST.keys[p.id]){el(box,"small",null,"Нет ключа: добавь его в «Сервисы».");return}
+  el(box,"small",null,"Загружаю лимиты…");
+  tmo(limitOf(p),25000,"таймаут").then(function(L){fillLim(box,p,L)},function(){fillLim(box,p,null)})});
+ if(all.length)el(B,"button","scard rfl","↻ Обновить",drawSet)}
+$("sprof").onclick=function(){closeSide();$("st").classList.add("show");drawSet()};
+$("stx").onclick=function(){$("st").classList.remove("show")};
 drawSites();if(API)load();
 drawSvc();if(pcur().id&&pcur().model)$("mname").textContent=pcur().model.slice(0,22);
 paint();
 renderSide();show();
-if(TG){try{TG.ready();TG.expand()}catch(e){}cloudLoad()}
+sidebarProf();if(TG){try{TG.ready();TG.expand()}catch(e){}cloudLoad()}
 </script>
 </body>
 </html>
